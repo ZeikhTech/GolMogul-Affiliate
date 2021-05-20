@@ -1,0 +1,507 @@
+@media (max-width: 1880px) {
+}
+@media (max-width: 1780px) {
+    .admin_all_user .card h5 {
+        font-size: 22px;
+    }
+    .admin_all_user .card p {
+        font-size: 19px;
+    }
+    .main-menu li a {
+        display: flex;
+        margin: 0px 0px 20px;
+    }
+    li.bottom_list {
+        margin-top: 230px;
+    }
+    .main_title {
+        font-size: 24.338px;
+    }
+}
+@media (max-width: 1680px) {
+    .border-r:after {
+        right: 64px;
+    }
+    .admin_all_user .card h5 {
+        font-size: 19px;
+    }
+    .main-menu li a {
+        display: flex;
+        margin: 0px 0px 14px;
+    }
+    li.bottom_list {
+        margin-top: 160px;
+    }
+}
+@media (max-width: 1560px) {
+    li.bottom_list {
+        margin-top: 170px;
+    }
+}
+@media (max-width: 1480px) {
+    .login-content h3 {
+        font-size: 22px;
+        max-width: 461px;
+    }
+    .form_inner_box h3 {
+        font-size: 40px;
+        margin: 23px 0px 39px;
+        text-align: center;
+    }
+    .border-r:after {
+        right: 45px;
+    }
+    .admin_all_user .card h5 {
+        font-size: 20px;
+    }
+    .admin_all_user .card p {
+        font-size: 19px;
+    }
+    .bank_detail_form ul li {
+        font-size: 20px;
+    }
+    .bank_detail_form ul {
+        display: flex;
+        padding-left: 38px;
+    }
+    .add_bank h3 {
+        padding-top: 18px;
+        font-size: 20px;
+        padding-bottom: 9px;
+    }
+    .user_history .card-body ul li h5 {
+        font-size: 19px;
+    }
+    .add_bank h3 {
+        font-size: 18px;
+    }
+}
+@media (max-width: 1367px) {
+    .bank_wraper .card-body p {
+        font-size: 19px;
+        padding: 1px 29px;
+    }
+    .add_bank h3 {
+        font-size: 16px;
+    }
+    .admin_all_user .card h5 {
+        font-size: 17px;
+    }
+    .admin_all_user .card p {
+        font-size: 17px;
+    }
+    .edit_icon a {
+        color: black;
+        font-size: 12px;
+    }
+    .login-content p {
+        font-size: 16px;
+    }
+    .border-r:after {
+        right: 33px;
+    }
+    .admin_all_user .card .add_user_img h5 {
+        margin-left: 25px;
+    }
+    .admin_all_user .card p {
+        font-size: 15px;
+    }
+    .admin_all_user .card h5 {
+        font-size: 16px;
+    }
+    .admin_all_user .nav {
+        padding: 5px;
+    }
+    .admin_all_user .nav-pills .nav-link {
+        padding-left: 21px;
+    }
+    .admin_all_user .card {
+        padding: 7px 11px;
+        border-radius: 10px;
+        margin-bottom: 9px;
+    }
+    .admin_all_user .card .add_user_img img {
+        width: 60px;
+        height: 60px;
+    }
+    .admin_all_user #v-pills-tabContent {
+        padding: 30px 20px 30px 30px;
+        height: 390px;
+        overflow: auto;
+    }
+    .admin_all_user .nav-pills .nav-link {
+        margin: 1px 0px;
+        font-size: 14px;
+    }
+    .admin_all_user .nav-pills .nav-link img {
+        max-width: 22px;
+    }
+    #add_new_user .modal-title {
+        font-size: 30px;
+    }
+    .admin_all_user_list {
+        background: white;
+        min-height: 398px;
+        background: white;
+        padding: 25px;
+    }
+    .user_history .card-body ul li p {
+        font-size: 13px;
+    }
+    .user_history .card-body ul li h5 {
+        font-size: 16px;
+    }
+    .main-card .table td {
+        font-size: 15px;
+    }
+    .main-card .table .thead-light th {
+        font-size: 18px;
+    }
+    li.bottom_list {
+        margin-top: 146px;
+    }
+    .iagree_radio label:before {
+        width: 28px;
+        height: 28px;
+    }
+    .iagree_radio label::after {
+        height: 28px;
+        width: 28px;
+    }
+    .iagree_radio label {
+        padding-top: 0px;
+        font-size: 19px;
+    }
+}
+@media (max-width: 1280px) {
+    .bank_detail_form ul {
+        display: flex;
+        padding-left: 26px;
+    }
+    .chart_value ul li {
+        padding: 0px 24px 0 15px;
+        border-right: 1px solid rgb(235, 235, 235);
+    }
+    .iagree_radio label:before {
+        width: 28px;
+        height: 28px;
+    }
+    .iagree_radio label::after {
+        height: 28px;
+        width: 28px;
+    }
+}
+@media (max-width: 1199px) {
+    .border-r:after {
+        right: 11px;
+    }
+    .login-content img {
+        max-width: 516px;
+    }
+    .form_inner_box {
+        max-width: 368px;
+    }
+    .admin_all_user .card {
+        padding: 10px 11px;
+        margin-bottom: 12px;
+    }
+    .admin_all_user .card .add_user_img h5 {
+        margin-left: 13px;
+        margin-top: 11px;
+    }
+    .admin_all_user .card h5 {
+        font-size: 16px;
+    }
+    .admin_all_user .card p {
+        font-size: 15px;
+    }
+    .bank_detail_form ul {
+        display: flex;
+        padding-left: 0;
+        justify-content: center;
+    }
+    .main_title {
+        font-size: 26px;
+    }
+    .admin_all_user #v-pills-tabContent {
+        padding: 30px 16px 30px 16px;
+    }
+    .chart_value ul li {
+        padding: 0px 12px 0 6px;
+        border-right: 1px solid rgb(235, 235, 235);
+    }
+    .chart_img img {
+        width: 100%;
+        height: auto;
+    }
+    .transation .card-body {
+        margin-bottom: 23px;
+        margin-top: 23px;
+    }
+}
+@media (max-width: 991px) {
+    .form_inner_box img {
+        max-width: 259px;
+    }
+    .form_inner_box {
+        max-width: 287px;
+    }
+    .login-content h3 {
+        font-size: 21px;
+        max-width: 446px;
+    }
+    .border-r:after {
+        right: 9px;
+    }
+    .form_inner_box h3 {
+        font-size: 40px;
+        margin: 28px 0px 39px;
+        text-align: center;
+    }
+    .form_inner_box img {
+        max-width: 270px;
+    }
+    .login-content img {
+        max-width: 398px;
+    }
+    div#v-pills-tab {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        text-align: center;
+        padding: 6px 26px 0px;
+        justify-content: space-between;
+    }
+    .admin_all_user .nav-pills .nav-link {
+        font-size: 18px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    /*.admin_content {
+         margin-top: 15px;
+         padding-left: 13px;
+    }
+    */
+    .admin_all_user .card h5 {
+        font-size: 14px;
+    }
+    .admin_all_user #v-pills-tabContent {
+        padding: 30px 15px 30px 15px;
+    }
+    .admin_all_user_list {
+        min-height: 424px;
+        padding: 25px;
+    }
+    .col-lg-6.mb_b {
+        margin-bottom: 20px;
+    }
+}
+@media (max-width: 768px) {
+    .sub_title {
+        font-size: 18px;
+    }
+    .login-content {
+        display: none;
+    }
+    .form_inner_box {
+        max-width: 500px;
+    }
+    .login_wraper {
+        padding: 5px 20px;
+    }
+    .form_inner_box img {
+        max-width: 318px;
+    }
+    .admin_all_user .card .add_user_img img {
+        width: 60px;
+        height: 60px;
+    }
+    .admin_all_user .card h5 {
+        font-size: 11px;
+    }
+    #content-wrapper {
+        padding: 95px 13px 31px 67px;
+    }
+    #add_new_user .modal-title {
+        font-size: 24px;
+    }
+    .admin_all_user_list .admin_content {
+        margin-top: 15px;
+    }
+    .admin_all_user_list .email_content {
+        margin-top: 15px;
+    }
+    .admin_all_user_list .edit_icon {
+        margin-top: 10px;
+    }
+    .user_history .card-body ul li h5 {
+        font-size: 14px;
+    }
+    .admin_content {
+        margin-top: 7px;
+    }
+}
+@media (max-width: 575px) {
+    .file-input__label {
+        width: 133px;
+        height: 47px;
+        font-size: 18px;
+    }
+    .button_upload p {
+        font-size: 12px;
+        max-width: 313px;
+    }
+    .Profile_inner .profile_img_upload {
+        flex-wrap: wrap;
+    }
+    .Profile_inner .button_upload {
+        margin-left: 0px;
+        margin-top: 20px;
+    }
+    .user_history .card-body ul li h5 {
+        font-size: 13px !important;
+    }
+    .user_history .card-body ul {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    .user_history .card-body ul li {
+        margin-bottom: 10px;
+    }
+    .admin_all_user_list .admin_content {
+        margin-top: 15px;
+    }
+    .admin_all_user_list .email_content {
+        margin-top: 15px;
+    }
+    .main_title {
+        font-size: 22.338px;
+    }
+    .bank_detail_form ul li {
+        font-size: 10px;
+    }
+    .form_inner_box h3 {
+        font-size: 47px;
+        margin: 47px 0px 66px;
+    }
+    .form_inner_box img {
+        max-width: 318px;
+    }
+    .login-footer p {
+        font-size: 14px;
+        color: rgb(54, 54, 54);
+    }
+    .bank_wraper .card-body p {
+        font-size: 17px;
+    }
+    .bank_wraper .card-body {
+        background: white;
+        padding: 14px 0px;
+    }
+    .admin_all_user .card {
+        padding: 7px 8px;
+    }
+    .email_content {
+        margin-top: 15px;
+    }
+    .admin_content {
+        margin-top: 15px;
+        padding-left: 13px;
+    }
+    .admin_all_user .card h5 {
+        font-size: 13px;
+    }
+    .admin_all_user .card p {
+        font-size: 12px;
+    }
+    .admin_all_user #v-pills-tabContent {
+        padding: 23px 10px 30px 10px;
+    }
+    .edit_icon {
+        margin-top: 11px;
+    }
+    .admin_all_user .nav-pills .nav-link {
+        font-size: 14px;
+    }
+    #add_new_user .modal-title {
+        font-size: 17px;
+    }
+    .main-menu li a {
+        display: flex;
+        margin: 0px 0px 7px;
+    }
+    .admin_all_user .theme_btn {
+        margin: 14px auto;
+    }
+    .admin_all_user_list {
+        padding: 14px;
+    }
+    #add_new_user .modal-body {
+        padding: 28px 28px 8px;
+    }
+    .chart_value ul li {
+        padding: 0px 20px 0 20px;
+        border-right: 1px solid rgb(235, 235, 235);
+    }
+    .transation .card-body {
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .transation .card-body .theme_btn {
+        margin-top: 20px;
+    }
+    .col-lg-6.mb_b {
+        margin-bottom: 20px;
+    }
+    .get_paid_modal .modal-title {
+        font-size: 30px;
+    }
+    .iagree_radio label:before {
+        width: 28px;
+        height: 28px;
+    }
+    .iagree_radio label::after {
+        height: 28px;
+        width: 28px;
+    }
+    .iagree_radio {
+        padding-left: 0px;
+        font-size: 19px;
+    }
+    .input_lable {
+    position: absolute;
+    margin-bottom: 0px;
+    top: -10px;
+    left: 22px;
+    background: white;
+    padding: 0px 5px;
+    font-size: 14px; 
+    
+}
+@media (max-width: 480px) {
+    .col-lg-6.mb_b {
+        margin-bottom: 20px;
+    }
+    .form_inner_box img {
+        max-width: 228px;
+    }
+    .login_wraper {
+        padding: 21px 20px;
+    }
+    .form_inner_box h3 {
+        font-size: 34px;
+        margin: 9px 0px 23px;
+    }
+    .mt_40 {
+        margin-top: 30px;
+    }
+    .main_title {
+        font-size: 19.338px;
+    }
+}
+@media (max-width: 376px) {
+    .admin_all_user .card p {
+        font-size: 11px;
+    }
+}
