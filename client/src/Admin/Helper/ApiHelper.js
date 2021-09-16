@@ -1,3 +1,30 @@
+import axios from "axios";
+
+export const getRequest = async (url, token, params = {}, headers = {}) => {
+  let config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...headers,
+    },
+    params: {
+      ...params,
+    },
+  };
+
+  let returnValue;
+
+  await axios
+    .get(window.APIURL + url, config)
+    .then((result) => {
+      returnValue = { result: result, error: null };
+    })
+    .catch((err) => {
+      returnValue = { result: null, error: err };
+    });
+  return returnValue;
+};
+
 export default function apiHelper(apiType, path, data, token) {
   if (apiType == "post") {
     return new Promise(function (resolve, reject) {

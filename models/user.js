@@ -6,7 +6,7 @@ require("mongoose-type-email");
 
 const userSchema = new Schema(
   {
-    createdAt: {
+    created: {
       type: Date,
       // required: true,
       default: Date.now(),
@@ -162,6 +162,12 @@ const userSchema = new Schema(
       type: Schema.ObjectId,
       ref: "users",
     },
+    FirstDegreeCount: {
+      type: Number,
+    },
+    SecondDegreeCount: {
+      type: Number,
+    },
     isDeleted: {
       default: false,
       type: Boolean,
@@ -173,6 +179,7 @@ const userSchema = new Schema(
     followersPerMonth: {
       type: Array,
     },
+
     followersPerYear: {
       type: Array,
     },
@@ -191,6 +198,25 @@ const userSchema = new Schema(
       type: Array,
       // sparse: true,
       // unique: true,
+    },
+    allUsersPerDay: {
+      type: Array,
+      // sparse: true,
+      // unique: true,
+    },
+    allUsersPerMonth: {
+      type: Array,
+      // sparse: true,
+      // unique: true,
+    },
+    allUsersThisYear: {
+      type: Array,
+      // sparse: true,
+      // unique: true,
+    },
+    tiersCount: {
+      tier1Count: Number,
+      tier2Count: Number,
     },
 
     isOnBoarded: Boolean,

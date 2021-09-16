@@ -33,8 +33,8 @@ class AffiliateHistory extends Component {
       FollowersOfAffiliate: [],
       activePage: 1,
       token: "",
-      loaderActive: false,
       recordsCount: "",
+      loaderActive: false,
     };
   }
 
@@ -70,31 +70,26 @@ class AffiliateHistory extends Component {
 
     let data = {
       pageNumber: pageNumber,
+      role: "everyone",
     };
-    this.setState({
-      loaderActive: true,
-    });
+
+    this.setState({ loaderActive: true });
     let result = await apiHelper(
       "post",
       "api/affiliate/followersAgainstAffiliate",
       data,
       token
     );
-    this.setState({
-      loaderActive: false,
-    });
+
     if (result.status == 200) {
       if (result.users) {
         this.setState({
           FollowersOfAffiliate: result.users,
+          recordsCount: result.count,
         });
       }
     }
-    let count = await apiHelper("post", `api/Admin/count`, data, "");
-
-    if (count.status == 200) {
-      this.setState({ recordsCount: count.recordsCount });
-    }
+    this.setState({ loaderActive: false });
   }
   render() {
     const settings = {
@@ -112,7 +107,7 @@ class AffiliateHistory extends Component {
           </div>
         ) : (
           ""
-        )}{" "}
+        )}
         <div
           id="content-wrapper"
           class="d-flex align-items-center justify-content-centers"
@@ -135,12 +130,12 @@ class AffiliateHistory extends Component {
                                 </li>
                                 <li>
                                   <h5>Email</h5>
-                                  <p>{data.email.Address}</p>
+                                  <p>{data.email.address}</p>
                                 </li>
                                 <li>
-                                  <h5>Account Ctreated</h5>
+                                  <h5>Account Created</h5>
                                   <p>
-                                    {moment(data.createdAt).format(
+                                    {moment(data.created).format(
                                       "MMMM Do YYYY"
                                     )}
                                   </p>
@@ -149,7 +144,7 @@ class AffiliateHistory extends Component {
                             </div>
                           );
                         })
-                      : ""}
+                      : "No follower found"}
                   </div>
                 </div>
                 {this.state.FollowersOfAffiliate > 0 ? (

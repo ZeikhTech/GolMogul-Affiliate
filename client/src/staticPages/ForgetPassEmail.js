@@ -22,7 +22,8 @@ class ForgetPassEmail extends Component {
   ForgetPassword = async (e) => {
     e.preventDefault();
     const { email } = this.state;
-    const regexp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const regexp =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (email.address === "") {
       this.setState({ errors: "Email  is required!" });
       return;
@@ -84,13 +85,12 @@ class ForgetPassEmail extends Component {
             <div className="row align-items-center">
               <div className="col-xl- col-lg-7 col-md-7 col-sm-12 border-r">
                 <div className="login-content">
-                  <h3>
-                    How well do you really know your friends if you don't know
-                    their goals?
-                  </h3>
+                  <h3>AFFILIATE PORTAL</h3>
                   <p>
-                    Keep up with your friend’s life goals and enjoy helping
-                    them!
+                    Discover your friends’ goals, dreams, and aspirations Stay
+                    connected,
+                    <br /> show support, make them smile ... and get paid for
+                    it!
                   </p>
                   <img
                     src="assets/images/login_img.png"

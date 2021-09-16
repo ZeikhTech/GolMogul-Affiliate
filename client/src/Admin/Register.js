@@ -1,20 +1,22 @@
 import React, { Component } from "react";
 // import DatePicker from "react-datepicker";
-
-import DatePicker from "react-date-picker";
-import "react-datepicker/dist/react-datepicker.css";
 import apiMultipart from "../Admin/Helper/ApiHelper2";
 import Notifications, { notify } from "react-notify-toast";
+import DatePicker from "react-date-picker";
+import "react-datepicker/dist/react-datepicker.css";
+import loaderImage from "../Admin/images/loader.svg";
+
 import { Button, Modal, Alert } from "react-bootstrap";
 //import "bootstrap/dist/css/bootstrap.css";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import loaderImage from "./images/loader.svg";
-
-import "react-datepicker/dist/react-datepicker.css";
 import $ from "jquery";
-var FormData = require("form-data");
+import apiHelper from "../Affiliate/Helper/ApiHelper";
+import PhoneCode from "react-phone-code";
+const axios = require("axios").default;
 
+var FormData = require("form-data");
 var moment = require("moment");
+
 class Register extends Component {
   state = {
     fullName: "",
@@ -26,15 +28,15 @@ class Register extends Component {
     dateOfBirth: new Date(),
     presentDate: new Date(),
     selctedYear: "",
-    userId: "",
     avatar: null,
+    loaderActive: false,
+    code: "+1",
+    inviteCode: "",
+    phone: "",
     avatarToSend: "",
     avatarNameToSend: "",
-    showAlert: false,
-    code: "",
-    inviteLink: "",
-    copied: false,
     errors: "",
+    showAlert: false,
   };
   onChangeDob = (value) => {
     const val = moment(value).format("MM/DD/YYYY");
@@ -45,28 +47,8 @@ class Register extends Component {
   async componentDidMount() {
     $("body").removeClass("transparent-header");
     $("html, body").animate({ scrollTop: 0 }, "slow");
-    const user = JSON.parse(localStorage.getItem("accessToken"));
-    if (user) {
-      this.setState({
-        userId: user.id,
-      });
-    }
   }
-  onChangeImage = async (e) => {
-    const files = e.target.files;
-    if (files) {
-      this.setState({
-        loaderActive: true,
 
-        avatar: URL.createObjectURL(files[0]),
-        avatarToSend: files[0],
-        avatarNameToSend: files[0].name,
-      });
-      this.setState({ loaderActive: false });
-
-      return;
-    }
-  };
   onChange = (e) => {
     this.setState({
       [e.target.name]: e.target.value,
@@ -77,12 +59,22 @@ class Register extends Component {
       email: { address: e.target.value },
     });
   };
-
+  onChangeImage = async (e) => {
+    const files = e.target.files;
+    if (files) {
+      this.setState({
+        loaderActive: true,
+        avatar: URL.createObjectURL(files[0]),
+        avatarToSend: files[0],
+        avatarNameToSend: files[0].name,
+      });
+      this.setState({ loaderActive: false });
+      return;
+    }
+  };
   onSubmit = async (e) => {
     e.preventDefault();
     const {
-      avatarToSend,
-      avatarNameToSend,
       fullName,
       email,
       password,
@@ -91,13 +83,18 @@ class Register extends Component {
       role,
       dateOfBirth,
       selctedYear,
+      code,
+      phone,
+      avatarToSend,
+      avatarNameToSend,
       errors,
     } = this.state;
 
     let todayYear = this.state.presentDate.getFullYear();
 
     const exp = /^[a-z A-Z]+$/;
-    const regexp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const regexp =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (fullName == "") {
       this.setState({ errors: "Fullname is required!" });
     } else if (!fullName.match(exp)) {
@@ -118,6 +115,14 @@ class Register extends Component {
       this.setState({ errors: "Password do not match!" });
     } else if (gender == "") {
       this.setState({ errors: "Gender is required!" });
+    } else if (code == "") {
+      this.setState({ errors: "Country code is required!" });
+    } else if (
+      phone == "" ||
+      phone.length < 5 ||
+      !phone.match("^[0-9]{1,45}$")
+    ) {
+      this.setState({ errors: "A valid phone number is required!" });
     } else if (role == "") {
       this.setState({ errors: "Role is required!" });
     } else if (dateOfBirth == "") {
@@ -126,58 +131,98 @@ class Register extends Component {
       this.setState({ errors: "Please select a valid date of birth!" });
     } else {
       this.setState({ errors: "" });
-      var data = new FormData();
-      const address = email.address;
-      if (avatarToSend) {
-        data.append("avatar", avatarToSend, avatarNameToSend);
-      }
-      data.append("fullName", fullName);
-      data.append("emailAddress", address);
-      data.append("password", password);
-      data.append("gender", gender);
-      data.append("role", role);
-      data.append("dateOfBirth", dateOfBirth);
-
-      const token = localStorage.getItem("LoginSession");
-      this.setState({
-        loaderActive: true,
-      });
-      var result = await apiMultipart(
-        "post",
-        "api/auth/registerNewUser",
-        data,
-        token
-      );
       this.setState({
         loaderActive: false,
       });
-      if (
-        result.status === 400 ||
-        result.status === 401 ||
-        result.status === 402 ||
-        result.status === 415
-      ) {
-        this.setState({
-          errors: result.message,
-        });
-      } else if (result.status === 413) {
-        this.setState({
-          errors: result.message,
-        });
-      } else if (result.status === 200) {
-        // notify.show(
-        //   "You are registered! Check your email to verify your account!",
-        //   "success",
-        //   6000
-        // );
-        this.setState({ code: result.code, showAlert: true });
+      try {
+        var data = {
+          name: fullName,
+          email: email.address,
+          password: password,
+          gender: gender,
+          countryCode: code,
+          phone: phone,
+          dateOfBirth: dateOfBirth,
+          role: role,
+        };
 
-        var inviteLink = `${window.APPURL}invite/${this.state.code}`;
-        this.setState({ inviteLink: inviteLink });
-      } else if (result.status === 500) {
+        const token = localStorage.getItem("LoginSession");
         this.setState({
-          errors: result.message,
+          loaderActive: true,
         });
+        // var result = await apiHelper(
+        //   "post",
+        //   "api/auth/registerNewUser",
+        //   data,
+        //   token
+        // );
+        var result = await axios.post(
+          "https://api.goalmogul.com/api/secure/user/account/register-user",
+          data,
+          {
+            headers: {
+              "x-access-token": token,
+            },
+          }
+        );
+        this.setState({
+          loaderActive: false,
+        });
+        if (result.status === 200) {
+          console.log("result", result.data.userId);
+          localStorage.setItem("showNotify", true);
+          notify.show(
+            `${this.state.role} registered successfully!`,
+            "success",
+            6000
+          );
+          console.log("role affiliate ha ");
+
+          if (this.state.role == "Affiliate") {
+            try {
+              console.log("role affiliate ha ");
+              this.setState({ loaderActive: true });
+              var result2 = await apiHelper(
+                "get",
+                `api/auth/newuser-invitecode/${result.data.userId}`,
+                "",
+                token
+              );
+              this.setState({ loaderActive: false });
+
+              if (result2.status === 200) {
+                this.setState({
+                  inviteCode: result2.inviteCode,
+                  showAlert: true,
+                });
+              } else {
+                this.setState({ errors: result.message });
+              }
+            } catch (e) {
+              this.setState({ errors: e.message });
+            }
+          }
+        }
+      } catch (error) {
+        this.setState({
+          loaderActive: false,
+        });
+
+        // console.log(error.response);
+        if (
+          error.response.status === 400 ||
+          error.response.status === 401 ||
+          error.response.status === 402 ||
+          error.response.status === 409 ||
+          error.response.status === 413 ||
+          error.response.status === 415 ||
+          error.response.status === 500
+        ) {
+          this.setState({
+            errors: error.response.data.message,
+          });
+          localStorage.clear();
+        }
       }
     }
   };
@@ -185,13 +230,10 @@ class Register extends Component {
     this.props.history.push("/admin/Listing/all");
     this.setState({ showAlert: false });
   };
-  // handleClose1 = () => {
-  //   this.setState({ showAlert: false });
-  // };
   render() {
+    // console.log();
     return (
       <div>
-        <Notifications />
         {this.state.loaderActive ? (
           <div className="inlineLoaderGif">
             <img src={loaderImage} alt="broken" />
@@ -200,6 +242,8 @@ class Register extends Component {
           ""
         )}{" "}
         <section className="login_wraper">
+          <Notifications />
+
           <div className="container-fluid">
             <div className="row align-items-center">
               <div className="col-xl- col-lg-7 col-md-7 col-sm-12 border-r">
@@ -208,15 +252,14 @@ class Register extends Component {
                     className="text-center"
                     style={{ marginTop: "0px", color: "rgb(67, 215, 241)" }}
                   >
-                    REGISTER NOW
+                    AFFILIATE SIGN UP
                   </h2>
-                  <h3>
-                    How well do you really know your friends if you don't know
-                    their goals?
-                  </h3>
+                  <h3>AFFILIATE PORTAL</h3>
                   <p>
-                    Keep up with your friend’s life goals and enjoy helping
-                    them!
+                    Discover your friends’ goals, dreams, and aspirations Stay
+                    connected,
+                    <br /> show support, make them smile ... and get paid for
+                    it!
                   </p>
 
                   <img
@@ -230,6 +273,12 @@ class Register extends Component {
               <div className="col-xl-4 col-lg-5 col-md-5 col-sm-12">
                 <div accept-charset="utf-8">
                   <div className="form_inner_box">
+                    {/* <img
+                      src="assets/images/Logo.png"
+                      className="img-fluid"
+                      alt=""
+                    /> */}
+
                     <div className="form-group mb_30">
                       <label className="input_lable">Full Name</label>
                       <input
@@ -287,17 +336,45 @@ class Register extends Component {
                         <option value="Female">Female</option>
                       </select>
                     </div>
-
                     <div className="form-group">
-                      <label className="input_lable">Date of Birth</label>
-                      <DatePicker
+                      <label className="input_lable">Country Code</label>
+
+                      <PhoneCode
+                        onSelect={
+                          (code) => this.setState({ code: code })
+                          // console.log(code)
+                        } // required
+                        showFirst={["US", "IN"]}
+                        defaultValue="select county"
+                        id="some-id"
+                        name="some-name"
                         className="form-control"
-                        name="dateOfBirth"
-                        id="datepicker"
-                        value={this.state.dateOfBirth}
-                        onChange={(value) => this.onChangeDob(value)}
+                        optionClassName="some option class name"
                       />
                     </div>
+                    <div className="form-group">
+                      <label className="input_lable">Phone </label>
+                      <input
+                        type="text"
+                        value={this.state.phone}
+                        onChange={this.onChange}
+                        name="phone"
+                        placeholder="Phone Number"
+                        className="form-control"
+                      />
+                    </div>
+
+                    {/* <div className="form-group ">
+                      <label className="input_lable">Inviter Code</label>
+                      <input
+                        type="text"
+                        value={this.state.inviterCode}
+                        onChange={this.onChange}
+                        name="inviterCode"
+                        className="form-control"
+                        placeholder="Inviter Code"
+                      />
+                    </div> */}
                     <div className="form-group">
                       <label className="input_lable">Role</label>
                       <select
@@ -311,44 +388,20 @@ class Register extends Component {
                         <option value="Affiliate">Affiliate</option>
                       </select>
                     </div>
-                    <div className="profile_container">
-                      <div className="profile_pic_upload">
-                        {this.state.avatar == null ? (
-                          <img
-                            src="assets/images/profile_img.png"
-                            className="img-fluid"
-                            alt=""
-                          />
-                        ) : (
-                          <img
-                            src={this.state.avatar}
-                            className="img-fluid"
-                            alt=""
-                          />
-                        )}
-                      </div>
-                      <div className="file-input" style={{ marginTop: "32px" }}>
-                        <input
-                          type="file"
-                          name="avatar"
-                          id="file-input"
-                          className="file-input__input"
-                          onChange={this.onChangeImage}
-                        />
-                        <label className="file-input__label" for="file-input">
-                          <span style={{ fontSize: "14px" }}>Upload file</span>
-                        </label>
-                      </div>
+                    <div className="form-group">
+                      <label className="input_lable">Date of Birth</label>
+
+                      <DatePicker
+                        className="form-control"
+                        name="dateOfBirth"
+                        id="datepicker"
+                        value={this.state.dateOfBirth}
+                        onChange={(value) => {
+                          this.onChangeDob(value);
+                        }}
+                      />
                     </div>
-                    <div className="iagree_radio">
-                      <span
-                        className="error"
-                        id="iagree_to_be_contacted_error"
-                        style={{ display: "none" }}
-                      >
-                        please accept our terms of business
-                      </span>
-                    </div>
+
                     <div>
                       {this.state.errors ? (
                         <div
@@ -383,11 +436,11 @@ class Register extends Component {
               <Modal.Body>
                 <Alert variant="success">
                   <p>
-                    Invitecode is<b> {this.state.code}</b>!!
+                    Invitecode is<b> {this.state.inviteCode}</b> !!
                   </p>
                   <hr />
                   <CopyToClipboard
-                    text={this.state.code}
+                    text={this.state.inviteCode}
                     onCopy={() => this.setState({ copied: true })}
                   >
                     <div

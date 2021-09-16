@@ -17,14 +17,13 @@ class Main extends Component {
 
   render() {
     const { user } = this.state;
-    console.log("user", user);
     if (user) {
       if (user.role) {
         var role = user.role;
         var email = user.email.address ? user.email.address : "";
         var isVerified = user.email.isVerified;
         if (user.avatar) {
-          console.log("user", user.avatar);
+          // console.log("user", user.avatar);
 
           var avatar = user.avatar;
           var str = avatar;

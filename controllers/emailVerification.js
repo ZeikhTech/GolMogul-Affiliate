@@ -33,7 +33,6 @@ const emailVeriFunction = (id, email) => {
     },
     (err, emailToken) => {
       const url = `${config.serverURL}api/auth/emailVerification/${emailToken}`;
-      console.log("emailToken is ", emailToken);
       var msg = {
         from: `"GoalMogul" <noreply@mg.goalmogul.com>`,
         to: email,
@@ -74,7 +73,6 @@ const emailVeriFunction = (id, email) => {
 exports.emailVeriFunction = emailVeriFunction;
 
 const forgetPassEmailVeriFunction = (id, email) => {
-  console.log("email a a     ", email);
   const EMAIL_SECRET = config.TOKEN_SECRET;
   jwt.sign(
     {

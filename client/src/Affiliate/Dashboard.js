@@ -1,15 +1,14 @@
 import React, { Component } from "react";
-import { Button, Modal, Alert } from "react-bootstrap";
-import Navebar from "./includes/navbar";
 import "bootstrap/dist/css/bootstrap.css";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import CurrentYearAffiliates from "./currentYearAffiliates";
-import CountPerMonth from "./History";
-import CountPerYear from "./CountPerDay";
-import apiHelper from "../Admin/Helper/ApiHelper";
-import Notifications, { notify } from "react-notify-toast";
-// import loaderImage from "../Admin/images/loader.svg";
+import WeeklyComparison from "./CountWeeksCompair";
+import History from "./History";
+import { Button, Modal, Alert, Row, Col, Container } from "react-bootstrap";
 
+import CountPerDay from "./CountPerDay";
+import apiHelper from "../Admin/Helper/ApiHelper";
+import loaderImage from "../Admin/images/loader.svg";
 import {
   EmailShareButton,
   FacebookShareButton,
@@ -28,7 +27,6 @@ import {
 class Dashboard extends Component {
   stateInitial = {
     userId: "",
-    loaderActive: false,
     inviteCode: "",
     oldCode: "",
     inviteLink: "",
@@ -37,6 +35,7 @@ class Dashboard extends Component {
     show2: false,
     show3: false,
     copied: false,
+    loaderActive: false,
     errors: "",
     token: "",
   };
@@ -64,9 +63,8 @@ class Dashboard extends Component {
         "get",
         `api/affiliate/Profile/${id}`,
         "",
-        token
+        ""
       );
-
       this.setState({ loaderActive: false });
       this.setState({
         loaderActive: false,
@@ -97,6 +95,13 @@ class Dashboard extends Component {
     }
     var inviteLink = `${window.APPURL}invite/${this.state.inviteCode}`;
     this.setState({ inviteLink: inviteLink });
+
+    window.onload = function () {
+      if (!window.location.hash) {
+        window.location = window.location + "#loaded";
+        window.location.reload();
+      }
+    };
   }
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
@@ -108,7 +113,7 @@ class Dashboard extends Component {
     this.state.show = true;
   };
 
-  handleClose1 = async () => {
+  editInviteCode = async () => {
     var { inviteCode, token, oldCode } = this.state;
     if (inviteCode !== "") {
       if (inviteCode === oldCode) {
@@ -116,6 +121,7 @@ class Dashboard extends Component {
         return;
       } else {
         var data = { newCode: inviteCode };
+        this.setState({ loaderActive: true });
         var result = await apiHelper(
           "post",
           "api/affiliate/editInviteCode",
@@ -139,6 +145,10 @@ class Dashboard extends Component {
     this.setState({ show3: false });
     window.location.reload();
   };
+  handleLoader = (loaderActive) => {
+    this.setState({ loaderActive: loaderActive });
+  };
+
   render() {
     let handleClose = () => {
       this.setState({ show1: false, show2: false, show3: false });
@@ -146,13 +156,13 @@ class Dashboard extends Component {
 
     return (
       <div>
-        {/* {this.state.loaderActive ? (
+        {this.state.loaderActive ? (
           <div className="inlineLoaderGif">
             <img src={loaderImage} alt="broken" />
           </div>
         ) : (
           ""
-        )}{" "} */}
+        )}{" "}
         {/* <Navebar props={this.state.userId} /> */}
         <div>
           {" "}
@@ -161,50 +171,57 @@ class Dashboard extends Component {
             className="d-flex align-items-center justify-content-centers"
           >
             <div className="container-fluid">
-              <h4 className="main_title mb-4">Dashboard</h4>
+              <h4 className=" mb-4" style={{ fontWeight: "bold" }}>
+                Affiliate's Statistical Dashboard
+              </h4>
+
               <div className="row">
                 <div className="col-lg-4 col-md-6 col-sm-12">
                   <div className="chart_item">
-                    <h4 className="sub_title">Monthly Report</h4>
+                    <h4 className="sub_title">Followers Daily Report</h4>
                     <div
                       className="chart_img text-center mt-3"
                       style={{ paddingTop: "3.5rem" }}
                     >
-                      {" "}
-                      <CountPerYear />
-                      {""}
-                      {/* <img
-                    src="assets/images/chart_one.png"
-                    className="img-fluid"
-                    alt=""
-                  /> */}
+                      <CountPerDay loaderActive={this.handleLoader} />
                     </div>
                   </div>
                 </div>
                 <div className="col-lg-4 col-md-6 col-sm-12">
                   <div className="chart_item">
-                    <h4 className="sub_title">History</h4>
-                    <div className="chart_img text-center mt-3">
-                      <CountPerMonth />{" "}
-                      {/* <img
-                    src="assets/images/chart_two.png"
-                    className="img-fluid"
-                    alt=""
-                  /> */}
+                    <h4 className="sub_title">Followers Weekly Report</h4>
+                    <div
+                      className="chart_img text-center mt-3"
+                      style={{ paddingTop: "3.5rem" }}
+                    >
+                      <WeeklyComparison loaderActive={this.handleLoader} />
                     </div>
                   </div>
                 </div>
                 <div className="col-lg-4 col-md-6 col-sm-12">
                   <div className="chart_item">
-                    <h4 className="sub_title">Yearly Report</h4>
+                    <h4 className="sub_title">Followers Monthly Report</h4>
                     <div
                       className="chart_img text-center mt-3"
                       style={{ paddingTop: "3.5rem" }}
                     >
-                      <CurrentYearAffiliates />
+                      <CurrentYearAffiliates loaderActive={this.handleLoader} />
 
                       {/* <img
                     src="assets/images/chart_three.png"
+                    className="img-fluid"
+                    alt=""
+                  /> */}
+                    </div>
+                  </div>
+                </div>
+                <div className="col-lg-4 col-md-6 col-sm-12">
+                  <div className="chart_item">
+                    <h4 className="sub_title">Followers History</h4>
+                    <div className="chart_img text-center mt-3">
+                      <History loaderActive={this.handleLoader} />{" "}
+                      {/* <img
+                    src="assets/images/chart_two.png"
                     className="img-fluid"
                     alt=""
                   /> */}
@@ -233,6 +250,7 @@ class Dashboard extends Component {
                       width: "100%",
                       backgroundColor: "rgba(64,176,226,0.1)",
                       height: "34px",
+                      cursor: "pointer",
                     }}
                   >
                     {this.state.inviteCode}
@@ -345,7 +363,7 @@ class Dashboard extends Component {
               <Button variant="secondary" onClick={handleClose}>
                 Close
               </Button>
-              <Button variant="primary" onClick={this.handleClose1}>
+              <Button variant="primary" onClick={this.editInviteCode}>
                 Save Changes
               </Button>
             </Modal.Footer>
@@ -366,6 +384,105 @@ class Dashboard extends Component {
               <Button variant="primary" onClick={this.handleClose2}>
                 Okay
               </Button>
+            </Modal.Footer>
+          </Modal>
+          <Modal
+            aria-labelledby="contained-modal-title-vcenter"
+            show={this.state.showBadge}
+            onHide={this.handleClose1}
+            centered
+          >
+            <Modal.Header closeButton className="modal-headerr">
+              <Modal.Title id="contained-modal-title-vcenter modal-title">
+                Badges Info
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="show-grid">
+              <Container>
+                <Row>
+                  <Col xs={3}>
+                    <img
+                      style={{
+                        marginBottom: "0.5",
+                      }}
+                      height="70px"
+                      width="70px"
+                      src="assets/images/green_badge.png"
+                      className="img-fluid d-block"
+                      alt=""
+                    />
+                    <div style={{ marginLeft: "30px", color: "#55bb5f" }}>
+                      <span>
+                        <strong>{this.state.greenBadges}</strong>
+                      </span>
+                    </div>
+                  </Col>
+                  <Col xs={3}>
+                    <img
+                      style={{
+                        marginBottom: "0.5",
+                      }}
+                      height="70px"
+                      width="70px"
+                      src="assets/images/brown_badge.png"
+                      className="img-fluid d-block"
+                      alt=""
+                    />
+                    <div style={{ marginLeft: "30px", color: "#5b3719" }}>
+                      <span>
+                        <strong>{this.state.brownBadges}</strong>
+                      </span>
+                    </div>
+                  </Col>
+                  <Col xs={3}>
+                    <img
+                      style={{
+                        marginBottom: "0.5",
+                      }}
+                      height="70px"
+                      width="70px"
+                      src="assets/images/silver_badge.png"
+                      className="img-fluid d-block"
+                      alt=""
+                    />
+                    <div style={{ marginLeft: "30px", color: "#898684" }}>
+                      <span>
+                        <strong>{this.state.silverBadges}</strong>
+                      </span>
+                    </div>
+                  </Col>
+                  <Col xs={3}>
+                    <img
+                      style={{
+                        marginBottom: "0.5",
+                      }}
+                      height="70px"
+                      width="70px"
+                      src="assets/images/golden_badge.png"
+                      className="img-fluid d-block"
+                      alt=""
+                    />
+                    <div style={{ marginLeft: "30px", color: "#ffcc5b" }}>
+                      <span>
+                        <strong>{this.state.goldBadges}</strong>
+                      </span>
+                    </div>
+                  </Col>
+                </Row>
+              </Container>
+            </Modal.Body>
+            <Modal.Footer>
+              {this.state.errors ? (
+                <div
+                  style={{ color: "#FE6E00" }}
+                  className="alert alert-danger"
+                >
+                  {this.state.errors}
+                </div>
+              ) : (
+                ""
+              )}
+              <Button onClick={this.handleClose1}>Close</Button>
             </Modal.Footer>
           </Modal>
         </div>

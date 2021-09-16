@@ -95,13 +95,12 @@ class ForgetPassword extends Component {
             <div className="row align-items-center">
               <div className="col-xl- col-lg-7 col-md-7 col-sm-12 border-r">
                 <div className="login-content">
-                  <h3>
-                    How well do you really know your friends if you don't know
-                    their goals?
-                  </h3>
+                  <h3>AFFILIATE PORTAL</h3>
                   <p>
-                    Keep up with your friend’s life goals and enjoy helping
-                    them!
+                    Discover your friends’ goals, dreams, and aspirations Stay
+                    connected,
+                    <br /> show support, make them smile ... and get paid for
+                    it!
                   </p>
                   <img
                     src="assets/images/login_img.png"
@@ -142,7 +141,7 @@ class ForgetPassword extends Component {
                         placeholder="********"
                       />
                     </div>
-                    <div className="iagree_radio">
+                    {/* <div className="iagree_radio">
                       <span
                         className="error"
                         id="iagree_to_be_contacted_error"
@@ -150,7 +149,7 @@ class ForgetPassword extends Component {
                       >
                         please accept our terms of business
                       </span>
-                    </div>
+                    </div> */}
                     {this.state.errors ? (
                       <div
                         style={{ color: "#FE6E00" }}
@@ -167,7 +166,7 @@ class ForgetPassword extends Component {
                       }}
                       className="theme_btn text-center d-flex mx-auto mb-3 mt_3"
                     >
-                      Update
+                      Update Password
                     </button>
                     <div className="top-bar">
                       <span>

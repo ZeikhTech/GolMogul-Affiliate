@@ -1,0 +1,51 @@
+<script>
+    /**
+     * Create a function containsString
+     * This function takes two args testString and searchString
+     * testString is going to be a string that does or does not contain the searchString in a possibly scattered form
+     * Funcion should return a boolean value indicating if the searchString was found in testString
+     * Order and Case match are important to reach this result
+     * Examples:
+     *      testString="HELLO", searchString="HELLO", returns true
+     *      testString="HAEbLLdefO", searchString="HELLO", returns true
+     *      testString="hEllO", searchString="HELLO", retuns false
+     *      testString="W--O-R-L-D", searchString="WORLD", returns true
+     *      testString="O--W-R-L-D", searchString="WORLD", returns false
+     * 
+     * 
+     */
+
+    function containsString(testString, searchString){
+        var sommeString="";
+        for (var j = 0 ; j < searchString.length; j ++){
+            for (var i = 0 ; i < testString.length; i ++){
+                if(searchString[j]==testString[i]){
+                    sommeString[j]=searchString[j];
+                }else{
+                    return ;
+                }
+            }
+        }
+        if(sommeString==testString){
+            return true
+        }
+        return false;
+    }
+
+    const testCases = [
+        {testString: "HELLO", searchString:"HELLO", result: true},
+        {testString: "HAEbLLdefO", searchString:"HELLO", result: true },
+        {testString: "hEllO", searchString:"HELLO", result: false },
+        {testString: "W--O-R-L-D", searchString:"WORLD", result: true },
+        {testString: "O--W-R-L-D", searchString:"WORLD", result: false },
+    ]
+
+    testCases.forEach(({testString, searchString, result}) => {
+        console.log(`
+            Test String: ${testString}, 
+            Search String: ${searchString}, 
+            Expected Result: ${result}, 
+            Actual Result: ${containsString(testString, searchString)}
+        `);
+    })
+</script>

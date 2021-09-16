@@ -3,17 +3,16 @@ import ReactDOM from "react-dom";
 import Chart, { colors } from "react-apexcharts";
 import apiHelper from "./Helper/ApiHelper";
 import $ from "jquery";
-import loaderImage from "../Admin/images/loader.svg";
+import loaderImage from "../Admin/images/loader2.svg";
 
 class ApexChart extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentMonthUsers: "",
-      LastMonthUser: "",
-      lastYearUsers: "",
-      loaderActive: false,
+      currentWeekUsers: 0,
+      currentMonthFoll: 0,
+      totalFoll: 0,
       series: [
         {
           data: [],
@@ -65,30 +64,34 @@ class ApexChart extends React.Component {
     var data = {
       id: this.props.props,
     };
-    this.setState({ loaderActive: true });
-
+    this.props.loaderActive(true);
     let result = await apiHelper(
       "post",
       "api/affDashboard/PiChartData",
       data,
       token
     );
-    this.setState({ loaderActive: false });
 
     if (result) {
       if (result.status == 200) {
-        var currentMonthUsers = result.currentMonthUsers;
-        var LastMonthUser = result.LastMonthUser;
+        var currentWeekUsers = result.thisWeekFoll;
+        var currentMonthFoll = result.thisMonthFoll;
 
-        var lastYearUsers = result.lastYearUsers;
+        var totalFoll = result.totalFollCount;
         this.setState({
-          currentMonthUsers: currentMonthUsers,
-          LastMonthUser: LastMonthUser,
-          lastYearUsers: lastYearUsers,
+          currentWeekUsers: currentWeekUsers,
+          currentMonthFoll: currentMonthFoll,
+          totalFoll: totalFoll,
         });
 
         var series1 = [
-          { data: [currentMonthUsers, LastMonthUser, lastYearUsers] },
+          {
+            data: [
+              this.state.currentWeekUsers,
+              this.state.currentMonthFoll,
+              this.state.totalFoll,
+            ],
+          },
         ];
         this.setState({
           series: series1,
@@ -97,17 +100,11 @@ class ApexChart extends React.Component {
         this.setState({ errors: result.message });
       }
     }
+    this.props.loaderActive(false);
   }
   render() {
     return (
       <div>
-        {this.state.loaderActive ? (
-          <div className="inlineLoaderGif">
-            <img src={loaderImage} alt="broken" />
-          </div>
-        ) : (
-          ""
-        )}{" "}
         <Chart
           options={this.state.options}
           series={this.state.series}
@@ -117,16 +114,16 @@ class ApexChart extends React.Component {
         <div className="chart_value">
           <ul>
             <li>
-              <h5 className="text_blue">{this.state.currentMonthUsers}</h5>
-              <p>Current Month</p>
+              <h5 className="text_blue">{this.state.currentWeekUsers}</h5>
+              <p>This Week</p>
             </li>
             <li>
-              <h5 className="text_info">{this.state.LastMonthUser}</h5>
-              <p>Last Month</p>
+              <h5 className="text_info">{this.state.currentMonthFoll}</h5>
+              <p>This Month</p>
             </li>
             <li>
-              <h5 className="text_orange">{this.state.lastYearUsers}</h5>
-              <p>Last Year</p>
+              <h5 className="text_orange">{this.state.totalFoll}</h5>
+              <p>Total</p>
             </li>
           </ul>
         </div>

@@ -12,6 +12,9 @@
   font-style: normal;
   font-display: swap;
 }
+.modal-headerr {
+  background: #43d7f1;
+}
 .react-date-picker__wrapper {
   flex-shrink: initial !important;
   border: 0 !important;
@@ -38,7 +41,7 @@
   top: 0;
   bottom: 0;
   background: rgb(255 255 255 / 0.9);
-  z-index: 99;
+  z-index: 2147483647;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -548,7 +551,7 @@ li.link-active svg {
   margin: 0px auto 15px;
 }
 .login-content img {
-  max-width: 609px;
+  max-width: 750px;
   margin: auto;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1117,6 +1120,9 @@ footer p {
   font-size: 19px;
   font-weight: bold;
   padding: 9px 19px;
+}
+.modal-title {
+  color: white;
 }
 .admin_all_user #v-pills-tabContent {
   padding: 30px 20px 30px 30px;

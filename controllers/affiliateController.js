@@ -9,7 +9,10 @@ const Joi = require("joi");
 var moment = require("moment");
 var cron = require("node-cron");
 const { func } = require("joi");
-
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+var ObjectId = require("mongodb").ObjectId;
+const mongoose = require("mongoose");
 const currentDay = new Date();
 const dateNow = Date.now();
 const myDate = moment(dateNow).format();
@@ -40,83 +43,104 @@ exports.editInviteCode = async (req, res, next) => {
         message: "No Affiliate exists!",
       });
     } else {
-      const role = "Follower";
-      let followers = await User.find({
-        role: role,
-        inviteCode: user.inviteCode,
-      });
-
-      if (followers.length === 0) {
-        try {
-          let userWithSameCode = await User.find({ inviteCode: newCode });
-          if (!userWithSameCode.length) {
-            const updatedUser = await User.findByIdAndUpdate(req.user.id, {
-              $set: { inviteCode: newCode },
-            });
-            return res.status(200).send({
-              status: 200,
-              message: "Successfully updated the Code1!!",
-            });
-          } else {
-            return res
-              .status(200)
-              .send({ status: 402, message: "Code already exists!!" });
-          }
-        } catch (e) {
+      try {
+        let userWithSameCode = await User.find({ inviteCode: newCode });
+        if (!userWithSameCode.length) {
+          const updatedUser = await User.findByIdAndUpdate(req.user.id, {
+            $set: { inviteCode: newCode },
+          });
+          return res.status(200).send({
+            status: 200,
+            message: "Successfully updated the Code!!",
+          });
+        } else {
           return res
             .status(200)
-            .send({ status: 400, message: "Something went wrong!" });
+            .send({ status: 402, message: "Code already exists!!" });
         }
-      } else {
-        try {
-          let userWithSameCode = await User.find({ inviteCode: newCode });
-          if (!userWithSameCode.length) {
-            const updatedCelebrity = await User.findByIdAndUpdate(req.user.id, {
-              $set: { inviteCode: newCode },
-            });
-            const updatedFollwers = await User.update(
-              { inviteCode: req.user.inviteCode },
-              {
-                $set: { inviteCode: newCode },
-              },
-              { multi: true }
-            );
-
-            // var updated = User.find({inviteCode:newCode})
-
-            return res.status(200).send({
-              status: 200,
-              message: "Successfully updated the Code!!",
-              user: updatedFollwers,
-            });
-          } else {
-            return res
-              .status(200)
-              .send({ status: 402, message: "Code already exists!!" });
-          }
-        } catch (e) {
-          return res.status(400).send({ message: "Something went wrong!!" });
-        }
+      } catch (e) {
+        return res
+          .status(200)
+          .send({ status: 400, message: "Something went wrong!" });
       }
     }
   } catch (e) {
     return res.status(200).send({ status: 400, message: "No user found!" });
   }
 };
+// exports.bank = async (req, res, next) => {
+//   try {
+//     const userId = req.user.id;
+//     const user = await User.findOne({ _id: userId }).exec();
+
+//     if (!user) {
+//       return res.status(200).send({
+//         status: 400,
+//         message: "Something went wrong!",
+//       });
+//     } else {
+//       const firstDegreeFols = await User.find({ invitedBy: user._id });
+//       const firstDegreeFolsLength = firstDegreeFols.length;
+//       let secondDegreeFolsLength = 0;
+
+//       await Promise.all(
+//         firstDegreeFols.map(async (user) => {
+//           await User.find({ invitedBy: user._id }, (err, users) => {
+//             var update = User.findByIdAndUpdate(
+//               user._id,
+//               {
+//                 FirstDegreeCount: users.length,
+//               },
+//               { new: true }
+//             );
+//             secondDegreeFolsLength = secondDegreeFolsLength + users.length;
+//           });
+
+//           return secondDegreeFolsLength;
+//         })
+//       );
+
+//       // for (let i = 0; i < firstDegreeFolsLength; i++) {
+//       //   await User.find(
+//       //     { invitedBy: firstDegreeFols[i]._id },
+//       //     async (err, users) => {
+//       //       var update = await User.findByIdAndUpdate(
+//       //         firstDegreeFols[i]._id,
+//       //         {
+//       //           FirstDegreeCount: users.length,
+//       //         },
+//       //         { new: true }
+//       //       );
+//       //       console.log("length", users.length);
+//       //       secondDegreeFolsLength += users.length;
+//       //     }
+//       //   );
+//       // }
+//       var update = await User.findByIdAndUpdate(
+//         userId,
+//         {
+//           FirstDegreeCount: firstDegreeFolsLength,
+//           SecondDegreeCount: secondDegreeFolsLength,
+//         },
+//         { new: true }
+//       );
+//       console.log("update", update);
+//     }
+//   } catch (e) {
+//     return res.status(200).send({ status: 400, message: "No user found!" });
+//   }
+// };
 
 exports.followersAgainstAffiliate = async (req, res, next) => {
   try {
     const id = req.user._id;
-    const affiliate = await User.findOne({ _id: id }).exec();
-    const affiliateinviteCode = affiliate.inviteCode;
-
-    const role = "Follower";
-    const user = await User.find({
-      role: role,
-      inviteCode: affiliateinviteCode,
-      isDeleted: false,
+    const users = await User.find({
+      invitedBy: id,
     });
-    return res.status(200).json({ status: 200, users: user });
+    const count = await User.count({
+      invitedBy: id,
+    });
+    return res.status(200).json({ status: 200, users: users, count: count });
   } catch (e) {
     return res.status(200).send({ status: 400, message: "No Follower Found!" });
   }
@@ -125,10 +149,10 @@ exports.followersAgainstAffiliate = async (req, res, next) => {
 exports.affiliateProfile = async (req, res, next) => {
   try {
     const id = req.params.id;
-    console.log(id);
     const user = await User.findOne({ _id: id }).exec();
-    var upassword = Cryptr.decrypt(user.password);
-    return res.json({ message: "success", user: user, password: upassword });
+    // console.log("p ",user.password);
+
+    return res.json({ user: user, password: user.password });
   } catch (e) {
     return res.status(200).send({ status: 400, message: "No user found!" });
   }
@@ -158,7 +182,6 @@ exports.editProfile = async (req, res, next) => {
     }
     if (image.size < 5000000) {
       avatar = req.file.filename;
-      console.log("ye avatr ha", avatar);
     } else {
       return res.send(400).send({ message: "File should be less than 5mbs" });
     }
@@ -204,8 +227,13 @@ exports.forgetPassword = async (req, res, next) => {
           _id: userId,
         }).exec();
         if (result) {
+          let hash = 0;
+          if (data.password) {
+            const salt = await bcrypt.genSalt(parseInt(saltRounds));
+            hash = await bcrypt.hash(data.password, salt);
+          }
           var data2 = {
-            password: await Cryptr.encrypt(data.password),
+            password: hash,
           };
           var update = await User.update(
             {
@@ -226,7 +254,7 @@ exports.forgetPassword = async (req, res, next) => {
           });
         }
       } else {
-        return res.status(400).send({ message: "passwords are not same!!" });
+        return res.status(400).send({ message: "Passwords are not same!!" });
       }
     }
   } catch (error) {
@@ -240,26 +268,56 @@ exports.editPassword = async (req, res, next) => {
   try {
     const scheme = Joi.object({
       //JOI Validations
-      password: Joi.string().min(3).max(30).required(),
+      oldPassword: Joi.string().min(8).max(30).required(),
+      password: Joi.string().min(8).max(30).required(),
     });
     const result = scheme.validate(req.body);
     if (result.error) {
       return res.status(400).json({ message: result.error.message });
     } else {
       const id = req.params.id;
+      const user = await User.findOne({ _id: id }).exec();
+      let hashedOldPass = 0;
+      if (req.body.oldPassword) {
+        bcrypt.compare(
+          req.body.oldPassword,
+          user.password,
+          async (err, result) => {
+            if (err || !result) {
+              return res.status(403).send({
+                status: 403,
+                message: "You entered incorect old password!",
+              });
+            } else {
+              let hash = 0;
+              if (req.body.password) {
+                const salt = await bcrypt.genSalt(parseInt(saltRounds));
+                hash = await bcrypt.hash(req.body.password, salt);
+              }
+              var data = {
+                password: hash,
+              };
 
-      var data = {
-        password: await Cryptr.encrypt(req.body.password),
-      };
+              var update = await User.findByIdAndUpdate(id, {
+                password: data.password,
+              });
 
-      var update = await User.findByIdAndUpdate(id, {
-        password: data.password,
-      });
+              return res.status(200).json({
+                status: 200,
+                user: update,
+              });
+            }
+          }
+        );
+      }
 
-      return res.status(200).json({
-        status: 200,
-        user: update,
-      });
+      // if (hashedOldPass != user.password) {
+      //   return res
+      //     .status(403)
+      //     .send({ status: 403, message: "You entered incorect old password!" });
+      // } else {
+
+      // }
     }
   } catch (e) {
     return res.status(400).json({ message: e.message });
@@ -269,31 +327,44 @@ exports.editPassword = async (req, res, next) => {
 exports.followersInThisMonth = async (req, res) => {
   try {
     presentMonthYear = myDate.toString().substr(0, 7);
+    const startOfMonth = moment().startOf("month").toDate();
 
     const reqId = req.body.id;
 
-    var id;
+    let id;
     if (reqId) {
-      id = reqId;
+      id = ObjectId(reqId);
     } else {
       id = req.user._id;
     }
-    var followersPerDay = [];
-    const affiliate = await User.findOne({ _id: id }, (err, affiliate) => {
-      if (affiliate) {
-        for (var i = 0; i < affiliate.followersPerDay.length; i++) {
-          if (
-            affiliate.followersPerDay[i][0].substr(0, 7) == presentMonthYear
-          ) {
-            followersPerDay.push(affiliate.followersPerDay[i]);
-          }
+    User.aggregate(
+      [
+        {
+          $match: {
+            invitedBy: id,
+
+            created: {
+              $gte: new Date(startOfMonth),
+              $lt: new Date(Date.now()),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$created" } },
+            count: { $sum: 1 },
+          },
+        },
+      ],
+
+      function (err, result) {
+        if (err) {
+          return res.send(err);
+        } else {
+          return res.status(200).json({ status: 200, followersPerDay: result });
         }
       }
-    }).exec();
-    return res.status(200).json({
-      status: 200,
-      followersPerDay: followersPerDay,
-    });
+    );
   } catch (err) {
     return res.status(400).send(err.message);
   }
@@ -304,153 +375,126 @@ exports.PiChartData = async (req, res) => {
 
     var id;
     if (reqId) {
-      id = reqId;
+      id = ObjectId(reqId);
     } else {
       id = req.user._id;
     }
-    var currentMonthUsers = await currentMonthUsersCount(id);
-    var LastMonthUsers = await lastMonthUsersCount(id);
-    var lastYearUsers = await lastYearUsersCount(id);
-    console.log("currentMonthUsers", currentMonthUsers);
-    console.log("LastMonthUsers", LastMonthUsers);
+    var thisWeekFoll = await thisWeekFollowersCount(id);
+    var thisMonthFoll = await thisMonthFollCount(id);
+    var totalFollCount = await totalFollowersCount(id);
+    var lastWeekFolls = await lastWeekFollCount(id);
 
-    console.log("lastYearUsers", lastYearUsers);
+    // console.log("thisWeekFoll", thisWeekFoll);
+    // console.log("thisMonthFoll", thisMonthFoll);
+    // console.log("totalFollCount", totalFollCount);
+    // console.log("lastWeekFolls", lastWeekFolls);
 
     return res.status(200).json({
       status: 200,
-      currentMonthUsers: currentMonthUsers,
-      LastMonthUser: LastMonthUsers,
-      lastYearUsers: lastYearUsers,
+      thisWeekFoll: thisWeekFoll,
+      thisMonthFoll: thisMonthFoll,
+      totalFollCount: totalFollCount,
+      lastWeekFolls: lastWeekFolls,
     });
   } catch (e) {
     return res.status(400).send({ status: 400, message: e.message });
   }
 };
+
 exports.followersInThisYear = async (req, res) => {
   try {
-    presentYear = myDate.toString().substr(0, 4);
+    const startOfYear = moment().startOf("year").toDate();
+    const endOfMonth = moment().endOf("month").toDate();
 
     reqId = req.body.id;
     var id;
     if (reqId) {
-      id = reqId;
+      id = ObjectId(reqId);
     } else {
       id = req.user._id;
     }
-    const affiliate = await User.findOne({ _id: id }, (err, affiliate) => {
-      const followersPerMonth = affiliate.followersPerMonth;
-      currentYearFoll = [];
-      if (followersPerMonth.length <= 12) {
-        for (let i = 0; i < followersPerMonth.length; i++) {
-          if (followersPerMonth[i][0].substr(0, 4) == presentYear) {
-            currentYearFoll.push(followersPerMonth[i][1]);
-          }
-        }
-        // return currentYearFoll;
-      } else {
-        var numofCurMonFoll = followersPerMonth.length % 12;
-        let i = followersPerMonth.length + 1 - numofCurMonFoll;
-        for (i; i < followersPerMonth.length; i++) {
-          currentYearFoll.push(followersPerMonth[i][1]);
-        }
-        let y = 12 - currentYearFoll.length;
-        for (var j = 0; j < y; j++) {
-          currentYearFoll.push(0);
-        }
-        // return currentYearFoll;
-      }
-    }).exec();
 
+    const result = await User.aggregate([
+      {
+        $match: {
+          invitedBy: id,
+          created: {
+            $gte: new Date(startOfYear.toString()),
+            $lt: new Date(Date.now()),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$created" },
+            year: { $year: "$created" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    var currentYearfoll = [];
+    for (var i = 0; i < 12; i++) {
+      currentYearfoll.push(0);
+    }
+    if (result.length > 0) {
+      for (var i = 0; i < result.length; i++) {
+        currentYearfoll[parseInt(result[i]._id.month) - 1] = result[i].count;
+      }
+    }
     return res
       .status(200)
-      .json({ status: 200, currentYearFoll, currentYearFoll });
+      .json({ status: 200, currentYearFoll: currentYearfoll });
   } catch (err) {
+    console.log(err);
     return res.status(400).send(err.message);
   }
+
+  // try {
+  //   presentYear = myDate.toString().substr(0, 4);
+
+  //   reqId = req.body.id;
+  //   var id;
+  //   if (reqId) {
+  //     id = reqId;
+  //   } else {
+  //     id = req.user._id;
+  //   }
+  //   const affiliate = await User.findOne({ _id: id }, (err, affiliate) => {
+  //     const followersPerMonth = affiliate.followersPerMonth;
+  //     currentYearFoll = [];
+  //     if (followersPerMonth.length <= 12) {
+  //       for (let i = 0; i < followersPerMonth.length; i++) {
+  //         if (followersPerMonth[i][0].substr(0, 4) == presentYear) {
+  //           currentYearFoll.push(followersPerMonth[i][1]);
+  //         }
+  //       }
+  //       // return currentYearFoll;
+  //     } else {
+  //       var numofCurMonFoll = followersPerMonth.length % 12;
+  //       let i = followersPerMonth.length + 1 - numofCurMonFoll;
+  //       for (i; i < followersPerMonth.length; i++) {
+  //         currentYearFoll.push(followersPerMonth[i][1]);
+  //       }
+  //       let y = 12 - currentYearFoll.length;
+  //       for (var j = 0; j < y; j++) {
+  //         currentYearFoll.push(0);
+  //       }
+  //       // return currentYearFoll;
+  //     }
+  //   }).exec();
+
+  //   return res
+  //     .status(200)
+  //     .json({ status: 200, currentYearFoll, currentYearFoll });
+  // } catch (err) {
+  //   return res.status(400).send(err.message);
+  // }
 };
-async function lastYearUsersCount(idd) {
-  try {
-    var prevYear = moment()
-      .subtract(1, "year")
-      .format()
-      .toString()
-      .substr(0, 4);
-    const id = idd;
-    var count = 0;
-    const affiliate = await User.find({ _id: id }, async (err, affiliate) => {
-      if (affiliate) {
-        followersPerYear = affiliate[0].followersPerMonth;
-
-        for (var i = 0; i < followersPerYear.length; i++) {
-          if (followersPerYear[i][0].toString().substr(0, 4) == prevYear) {
-            count = count + followersPerYear[i][1];
-          } else {
-            count = count + 0;
-          }
-        }
-      } else {
-        console.log(err.message);
-      }
-    });
-    return count;
-  } catch (err) {
-    console.log(err.message);
-  }
-}
-async function currentMonthUsersCount(idd) {
-  try {
-    presentMonthYear = myDate.toString().substr(0, 7);
-    const id = idd;
-    var count = 0;
-
-    const affiliatee = await User.find({ _id: id }, async (err, affiliate) => {
-      if (affiliate) {
-        followersPerDay = affiliate[0].followersPerDay;
-        for (let j = 0; j < followersPerDay.length; j++) {
-          if (followersPerDay[j][0].substr(0, 7) == presentMonthYear) {
-            count = count + followersPerDay[j][1];
-          } else {
-            count = count + 0;
-          }
-        }
-      } else {
-        console.log(err.message);
-      }
-    });
-    return count;
-  } catch (err) {
-    console.log(err.message);
-  }
-}
-async function lastMonthUsersCount(idd) {
-  try {
-    var prevMonthYear = moment().date(0).format().toString().substr(0, 7);
-    const id = idd;
-    var count = 0;
-    const affiliatee = await User.find({ _id: id }, async (err, affiliate) => {
-      if (affiliate) {
-        followersPerMonth = affiliate[0].followersPerMonth;
-
-        for (var i = 0; i < followersPerMonth.length; i++) {
-          if (followersPerMonth[i][0].toString() == prevMonthYear) {
-            count = count + followersPerMonth[i][1];
-          } else {
-            count = count + 0;
-          }
-        }
-      } else {
-        console.log(err.message);
-      }
-    });
-    return count;
-  } catch (err) {
-    console.log(err.message);
-  }
-}
 async function followersCountPerDay() {
   try {
     presentDate = myDate.toString().substr(0, 10);
-    const role = "Follower";
 
     var followersPerDay = [];
 
@@ -461,15 +505,13 @@ async function followersCountPerDay() {
           for (var i = 0; i < affiliates.length; i++) {
             try {
               let followers = await User.find({
-                role: role,
-                inviteCode: affiliates[i].inviteCode,
-                isDeleted: false,
+                invitedBy: affiliates[i]._id,
               });
               if (followers.length > 0) {
                 var count = 0;
                 for (var j = 0; j < followers.length; j++) {
                   if (
-                    moment(followers[j].createdAt)
+                    moment(followers[j].created)
                       .format()
                       .toString()
                       .substr(0, 10) === presentDate
@@ -517,10 +559,220 @@ async function followersCountPerDay() {
     console.log(err.message);
   }
 }
+async function thisWeekFollowersCount(id) {
+  try {
+    const start = moment().weekday(1).format();
+    const end = moment().weekday(7).format();
+
+    const result = await User.aggregate([
+      {
+        $match: {
+          invitedBy: ObjectId(id),
+          created: {
+            $gte: new Date(start),
+            $lt: new Date(end),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$created" } },
+        },
+        $group: { _id: null, count: { $sum: 1 } },
+      },
+    ]);
+    if (result.length > 0) {
+      return result[0].count;
+    } else {
+      return 0;
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send(err.message);
+  }
+}
+async function lastWeekFollCount(id) {
+  try {
+    const oneDay = 1000 * 60 * 60 * 24,
+      oneWeek = oneDay * 7;
+
+    const last = moment().weekday(-1);
+    const lastDay = last - (last % oneDay) + oneDay;
+    const firstDay = lastDay - oneWeek;
+    // Run the aggregation
+    var count = 0;
+    const result = await User.aggregate([
+      // $match is a query to select the week
+      {
+        $match: {
+          invitedBy: id,
+          created: {
+            $gte: new Date(moment(firstDay).format()),
+            $lt: new Date(moment(last).format()),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$created" } },
+        },
+        $group: { _id: null, count: { $sum: 1 } },
+      },
+    ]);
+    if (result.length > 0) {
+      return result[0].count;
+    } else {
+      return 0;
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send(err.message);
+  }
+  // try {
+  //   var prevYear = moment()
+  //     .subtract(1, "year")
+  //     .format()
+  //     .toString()
+  //     .substr(0, 4);
+  //   const id = idd;
+  //   var count = 0;
+  //   const affiliate = await User.find({ _id: id }, async (err, affiliate) => {
+  //     if (affiliate) {
+  //       followersPerYear = affiliate[0].followersPerMonth;
+
+  //       for (var i = 0; i < followersPerYear.length; i++) {
+  //         if (followersPerYear[i][0].toString().substr(0, 4) == prevYear) {
+  //           count = count + followersPerYear[i][1];
+  //         } else {
+  //           count = count + 0;
+  //         }
+  //       }
+  //     } else {
+  //       console.log(err.message);
+  //     }
+  //   });
+  //   return count;
+  // } catch (err) {
+  //   console.log(err.message);
+  // }
+}
+async function thisMonthFollCount(id) {
+  try {
+    const startOfMonth = moment().startOf("month").toDate();
+
+    // Run the aggregation
+
+    const result = await User.aggregate([
+      // $match is a query to select the week
+      {
+        $match: {
+          invitedBy: id,
+          created: {
+            $gte: new Date(startOfMonth),
+            $lt: new Date(Date.now()),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$created" } },
+        },
+        $group: { _id: null, count: { $sum: 1 } },
+      },
+
+      // $group to count the total
+    ]);
+    if (result.length > 0) {
+      return result[0].count;
+    } else {
+      return 0;
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send(err.message);
+  }
+
+  // try {
+  //   presentMonthYear = myDate.toString().substr(0, 7);
+  //   const id = idd;
+  //   var count = 0;
+
+  //   const affiliatee = await User.find({ _id: id }, async (err, affiliate) => {
+  //     if (affiliate) {
+  //       followersPerDay = affiliate[0].followersPerDay;
+  //       for (let j = 0; j < followersPerDay.length; j++) {
+  //         if (followersPerDay[j][0].substr(0, 7) == presentMonthYear) {
+  //           count = count + followersPerDay[j][1];
+  //         } else {
+  //           count = count + 0;
+  //         }
+  //       }
+  //     } else {
+  //       console.log(err.message);
+  //     }
+  //   });
+  //   return count;
+  // } catch (err) {
+  //   console.log(err.message);
+  // }
+}
+async function totalFollowersCount(id) {
+  try {
+    const result = await User.aggregate([
+      {
+        $match: {
+          invitedBy: id,
+          created: {
+            $gte: new Date("01-01-2000"),
+            $lt: new Date(Date.now()),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$created" } },
+        },
+        $group: { _id: null, count: { $sum: 1 } },
+      },
+
+      // $group to count the total
+    ]);
+    if (result.length > 0) {
+      return result[0].count;
+    } else {
+      return 0;
+    }
+  } catch (err) {
+    return res.status(400).send(err.message);
+  }
+  // try {
+  //   var prevMonthYear = moment().date(0).format().toString().substr(0, 7);
+  //   const id = idd;
+  //   var count = 0;
+  //   const affiliatee = await User.find({ _id: id }, async (err, affiliate) => {
+  //     if (affiliate) {
+  //       followersPerMonth = affiliate[0].followersPerMonth;
+
+  //       for (var i = 0; i < followersPerMonth.length; i++) {
+  //         if (followersPerMonth[i][0].toString() == prevMonthYear) {
+  //           count = count + followersPerMonth[i][1];
+  //         } else {
+  //           count = count + 0;
+  //         }
+  //       }
+  //     } else {
+  //       console.log(err.message);
+  //     }
+  //   });
+  //   return count;
+  // } catch (err) {
+  //   console.log(err.message);
+  // }
+}
+
 async function followersCountPerMonth() {
   try {
     presentMonth = myDate.toString().substr(0, 7);
-    const role = "Follower";
 
     var followersPerMonth = [];
 
@@ -531,16 +783,15 @@ async function followersCountPerMonth() {
           if (affiliates.length > 0) {
             for (var i = 0; i < affiliates.length; i++) {
               let followers = await User.find({
-                role: role,
-                inviteCode: affiliates[i].inviteCode,
-                isDeleted: false,
+                invitedBy: affiliates[i]._id,
               });
+
               try {
                 if (followers.length > 0) {
                   var count = 0;
                   for (var j = 0; j < followers.length; j++) {
                     if (
-                      moment(followers[j].createdAt)
+                      moment(followers[j].created)
                         .format()
                         .toString()
                         .substr(0, 7) === presentMonth
@@ -591,23 +842,3 @@ async function followersCountPerMonth() {
     console.log(err.message);
   }
 }
-cron.schedule(
-  "58 23 */ * *",
-  () => {
-    console.log("Running for affiliates Count Per Day");
-    followersCountPerDay();
-  },
-  {
-    scheduled: true,
-  }
-);
-cron.schedule(
-  `58 23 ${daysInMonth} */ *`,
-  () => {
-    console.log("Running for affiliates Count Per Month");
-    followersCountPerMonth();
-  },
-  {
-    scheduled: true,
-  }
-);

@@ -13,7 +13,6 @@ class EditProfile extends Component {
   state = {
     fullName: "",
     email: { address: "" },
-    oldPassword: "",
     editedOldPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -58,7 +57,6 @@ class EditProfile extends Component {
       this.setState({
         fullName: result.user.name,
         email: { address: result.user.email.address },
-        oldPassword: result.password,
         inviteCode: result.user.inviteCode,
       });
       if (result.status == 200) {
@@ -125,7 +123,8 @@ class EditProfile extends Component {
       avatarNameToSend,
     } = this.state;
     const exp = /^[a-z A-Z]+$/;
-    const regexp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const regexp =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (fullName == "") {
       this.setState({ errors: "Fullname is required!" });
     } else if (!fullName.match(exp)) {
@@ -195,12 +194,7 @@ class EditProfile extends Component {
   };
   async onPasswordSubmit(e) {
     e.preventDefault();
-    const {
-      editedOldPassword,
-      newPassword,
-      confirmPassword,
-      oldPassword,
-    } = this.state;
+    const { editedOldPassword, newPassword, confirmPassword } = this.state;
     if (editedOldPassword === "") {
       this.setState({ passwordErrors: "Please enter your old password!" });
     } else if (editedOldPassword.length < 8) {
@@ -217,13 +211,12 @@ class EditProfile extends Component {
       this.setState({ passwordErrors: "Password confirmation is required!" });
     } else if (newPassword !== confirmPassword) {
       this.setState({ passwordErrors: "Password does not match!" });
-    } else if (editedOldPassword !== oldPassword) {
-      this.setState({ passwordErrors: "You entered incorect old password!" });
     } else {
       let x = this.props.match;
       let id = x.params.id;
       this.setState({ errors: "" });
       var data = {
+        oldPassword: editedOldPassword,
         password: newPassword,
       };
 
@@ -240,17 +233,18 @@ class EditProfile extends Component {
       if (
         result.status === 401 ||
         result.status === 402 ||
-        result.status === 400
+        result.status === 400 ||
+        result.status === 403
       ) {
         this.setState({
-          errors: result.message,
+          passwordErrors: result.message,
         });
       } else if (result.status === 200) {
         // notify.show("Profile updated successfully!!", "success", 6000);
         this.setState({ show: false, showAlert: true });
       } else if (result.status === 500) {
         this.setState({
-          errors: result.message,
+          passwordErrors: result.message,
         });
         return;
       }
@@ -468,7 +462,7 @@ class EditProfile extends Component {
           <Modal show={this.state.showAlert} onHide={this.handleClose1}>
             <Modal.Body>
               <Alert variant="success">
-                <p>Profile updated successfully!! </p>
+                <p>Password updated successfully!! </p>
                 <hr />
               </Alert>
             </Modal.Body>

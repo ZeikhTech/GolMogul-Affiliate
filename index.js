@@ -63,3 +63,32 @@ app.listen(port, () => {
 if (process.env.NODE_ENV == "production") {
   app.use(express.static("client/build"));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+console.log("hello");
+setTimeout(() => {
+  console.log("hello 1");
+}, 1000);
+
+console.log("hello 2");
+
+
+

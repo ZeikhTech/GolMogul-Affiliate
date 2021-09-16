@@ -52,7 +52,8 @@ class Login extends Component {
   Login = async (e) => {
     e.preventDefault();
     const { email, password, isChecked } = this.state;
-    const regexp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const regexp =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (email.address === "") {
       this.setState({ errors: "Email  is required!" });
       return;
@@ -71,7 +72,6 @@ class Login extends Component {
       this.setState({
         loaderActive: true,
       });
-      console.log("Test");
       var data = {
         email: { address: email.address },
         password: password,
@@ -82,20 +82,20 @@ class Login extends Component {
       this.setState({
         loaderActive: false,
       });
-      if (result.status === 401) {
+      if (result.status === 401 || result.status === 403) {
         this.setState({ errors: result.message });
         return;
       } else if (result.status === 200) {
         const idd = result.id;
         this.setState({ redirect: true });
+        this.setState({ loaderActive: true });
 
-        localStorage.setItem("LoginSession", result.accessToken);
+        const token = localStorage.setItem("LoginSession", result.accessToken);
         localStorage.setItem("accessToken", JSON.stringify(result.user));
         localStorage.setItem("userId", JSON.stringify(result.id));
         localStorage.setItem("loginTime", new Date().getTime());
-
+        this.setState({ loaderActive: false });
         if (result.user.role === "Affiliate") {
-          this.setState({ loaderActive: false });
           this.setState({ redirect: true });
           this.props.history.push({
             pathname: `/affiliate/Dashboard/${idd}`,
@@ -145,18 +145,18 @@ class Login extends Component {
             <div className="row align-items-center">
               <div className="col-xl- col-lg-7 col-md-7 col-sm-12 border-r">
                 <div className="login-content">
-                  <h3>
-                    How well do you really know your friends if you don't know
-                    their goals?
-                  </h3>
+                  <h3>AFFILIATE PORTAL</h3>
                   <p>
-                    Keep up with your friend’s life goals and enjoy helping
-                    them!
+                    Discover your friends’ goals, dreams, and aspirations Stay
+                    connected,
+                    <br /> show support, make them smile ... and get paid for
+                    it!
                   </p>
                   <img
                     src="assets/images/login_img.png"
                     className="img-fluid mt-5"
                     alt=""
+                    Width="900px"
                   />
                 </div>
               </div>
@@ -192,7 +192,7 @@ class Login extends Component {
                       />
                     </div>
                     <div className="iagree_radio p-0">
-                      <input
+                      {/* <input
                         type="checkbox"
                         name="iagree_to_be_contacted"
                         id="iagree_to_be_contacted"
@@ -203,7 +203,7 @@ class Login extends Component {
                       <label for="iagree_to_be_contacted">
                         {" "}
                         please accept our terms of business.
-                      </label>{" "}
+                      </label>{" "} */}
                       {this.state.errors ? (
                         <div
                           style={{ color: "#FE6E00" }}
@@ -234,7 +234,7 @@ class Login extends Component {
                       <span>
                         <a class="link" href="/#/forgetPassEmail/">
                           {" "}
-                          Forgotten password?
+                          Forgot password?
                         </a>
                       </span>
                     </div>

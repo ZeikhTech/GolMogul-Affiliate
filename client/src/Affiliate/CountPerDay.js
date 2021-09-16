@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import Chart, { colors } from "react-apexcharts";
 import apiHelper from "./Helper/ApiHelper";
 import $ from "jquery";
-import loaderImage from "../Admin/images/loader.svg";
+import loaderImage from "../Admin/images/loader2.svg";
 
 var moment = require("moment");
 class CountPerDay extends React.Component {
@@ -11,10 +11,6 @@ class CountPerDay extends React.Component {
     super(props);
 
     this.state = {
-      currentMonthUsers: "",
-      LastMonthUser: "",
-      lastYearUsers: "",
-      loaderActive: false,
       series: [
         {
           data: [],
@@ -97,7 +93,8 @@ class CountPerDay extends React.Component {
 
     const user = JSON.parse(localStorage.getItem("accessToken"));
     const token = localStorage.getItem("LoginSession");
-    this.setState({ loaderActive: true });
+    this.props.loaderActive(true);
+
     var data = {
       id: this.props.props,
     };
@@ -107,20 +104,21 @@ class CountPerDay extends React.Component {
       data,
       token
     );
-    this.setState({ loaderActive: false });
 
     if (result) {
       if (result.status == 200) {
-        var limit = presentDate - result.followersPerDay.length - 1;
+        var limit = result.followersPerDay.length;
+
         var new1 = [];
-        for (var i = 0; i <= limit - 1; i++) {
+        for (var i = 1; i < presentDate; i++) {
           new1.push(0);
         }
-        var dummy = [];
-        for (var j = 0; j < result.followersPerDay.length - 1; j++) {
-          dummy.push(result.followersPerDay[j][1]);
+        for (var i = 0; i < limit; i++) {
+          new1[
+            parseInt(result.followersPerDay[i]._id.toString().substr(8, 2))
+          ] = result.followersPerDay[i].count;
         }
-        new1.push(...dummy);
+        console.log("new1", new1);
 
         this.setState({
           series: [{ data: new1 }],
@@ -129,17 +127,11 @@ class CountPerDay extends React.Component {
         this.setState({ errors: result.message });
       }
     }
+    this.props.loaderActive(false);
   }
   render() {
     return (
       <div>
-        {this.state.loaderActive ? (
-          <div className="inlineLoaderGif">
-            <img src={loaderImage} alt="broken" />
-          </div>
-        ) : (
-          ""
-        )}{" "}
         <Chart
           options={this.state.options}
           series={this.state.series}

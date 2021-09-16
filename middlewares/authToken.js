@@ -3,7 +3,6 @@ const User = require("../models/user");
 
 exports.protect = async (req, res, next) => {
   let token;
-  //console.log(req.headers.token)
   if (req.headers.authorization) {
     token = req.headers.authorization;
   } else if (req.headers.token) {
@@ -16,11 +15,13 @@ exports.protect = async (req, res, next) => {
   } else {
     try {
       //verify token
-      const decoded = jwt.verify(token, process.env.SECRET_TOKEN_KEY);
-      req.user = await User.findById(decoded.user);
 
+      const decoded = jwt.verify(token, process.env.SECRET_TOKEN_KEY);
+
+      req.user = await User.findById(decoded.userId);
       next();
     } catch (err) {
+      console.log("THIS IS ERROR OF TOKEN", err);
       return res.status(400).send("Please Login to view that resource");
     }
   }
@@ -29,16 +30,10 @@ exports.protect = async (req, res, next) => {
 exports.access = function (role) {
   return async (req, res, next) => {
     try {
-      // console.log(role1.length);
       var reqRole = req.user.role;
-      // console.log("role.......................", role);
-
-      // console.log("role.......................", reqRole);
       var i;
       for (i = 0; i < role.length; i++) {
         if ((reqRole = role[i])) {
-          // console.log("comming");
-
           next();
           return;
         } else {

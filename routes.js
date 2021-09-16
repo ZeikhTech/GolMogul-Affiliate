@@ -23,7 +23,6 @@ var upload = multer({ storage: storage });
 
 module.exports = function (app) {
   // Authentication APIs
-
   app.post("/api/auth/register", upload.single("avatar"), auth.register);
   app.post("/api/auth/login", auth.login);
   app.post("/api/auth/forgetPasswordEmail", auth.forgetPasswordEmail);
@@ -57,7 +56,7 @@ module.exports = function (app) {
   );
   app.post(
     "/api/auth/registerNewUser",
-    upload.single("avatar"),
+    // upload.single("avatar"),
     protect,
     access(["Admin"]),
     AdminController.registerNewUser
@@ -87,7 +86,37 @@ module.exports = function (app) {
     access(["Admin"]),
     AdminController.deletedUsersListing
   );
-
+  app.get(
+    "/api/auth/newuser-invitecode/:id",
+    protect,
+    access(["Admin"]),
+    AdminController.newuserInvitecode
+  );
+  //badges count
+  app.post(
+    "/api/admin/greenBadgeFollowers",
+    protect,
+    access(["Admin", "Affiliate"]),
+    AdminController.greenBadge
+  );
+  app.post(
+    "/api/admin/brownBadgeFollowers",
+    protect,
+    access(["Admin", "Affiliate"]),
+    AdminController.brownBadge
+  );
+  app.post(
+    "/api/admin/silverBadgeFollowers",
+    protect,
+    access(["Admin", "Affiliate"]),
+    AdminController.silverBadge
+  );
+  app.post(
+    "/api/admin/goldBadgeFollowers",
+    protect,
+    access(["Admin", "Affiliate"]),
+    AdminController.goldBadge
+  );
   app.get(
     "/api/admin/followersListing",
     protect,
@@ -98,7 +127,7 @@ module.exports = function (app) {
     "/api/admin/affiliatesListing",
     protect,
     access(["Admin"]),
-    AdminController.usersAgainstRole
+    AdminController.affiliatesListing
   );
   app.get(
     "/api/affiliate/affiliatesInThisMonth",
@@ -107,10 +136,10 @@ module.exports = function (app) {
     AdminController.affiliatesInThisMonth
   );
   app.get(
-    "/api/affiliate/PiChartData",
+    "/api/affiliate/affiliatesPiChartData",
     protect,
     access(["Admin"]),
-    AdminController.PiChartData
+    AdminController.affiliatesPiChartData
   );
 
   app.get(
@@ -118,6 +147,33 @@ module.exports = function (app) {
     protect,
     access(["Admin"]),
     AdminController.currentYearAffiliates
+  );
+  app.post(
+    "/api/affilDashboard/degreeFollowers",
+    protect,
+    access(["Admin", "Affiliate"]),
+    AdminController.degreeFollowers
+  );
+
+  //All Users APIs
+  app.get(
+    "/api/admin/allUsersInThisMonth",
+    protect,
+    access(["Admin"]),
+    AdminController.allUsersInThisMonth
+  );
+  app.get(
+    "/api/admin/allUsersPiChartData",
+    protect,
+    access(["Admin"]),
+    AdminController.allUsersPiChartData
+  );
+
+  app.get(
+    "/api/admin/allUserscurrentYear",
+    protect,
+    access(["Admin"]),
+    AdminController.allUserscurrentYear
   );
   //Affiliate APIs
   app.post(
@@ -165,5 +221,13 @@ module.exports = function (app) {
     AffiliteController.editProfile
   );
 
+  //////////////////Bank
+
+  // app.get(
+  //   "/api/affiliate/money",
+  //   protect,
+  //   access(["Affiliate"]),
+  //   AffiliteController.bank
+  // );
   //app.use(errorFunction);
 };

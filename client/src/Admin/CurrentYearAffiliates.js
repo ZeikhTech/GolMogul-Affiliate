@@ -3,16 +3,13 @@ import ReactDOM from "react-dom";
 import Chart, { colors } from "react-apexcharts";
 import apiHelper from "./Helper/ApiHelper";
 import $ from "jquery";
-import loaderImage from "./images/loader.svg";
+// import loaderImage from "./images/loader2.svg";
 
 class currentYearAffiliates extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentMonthUsers: "",
-      LastMonthUser: "",
-      lastYearUsers: "",
       series: [
         {
           data: [],
@@ -61,7 +58,7 @@ class currentYearAffiliates extends React.Component {
             ["Jan", ""],
             ["Feb", ""],
             ["March", ""],
-            "April",
+            ["Aprl", ""],
             ["May", ""],
             ["June", ""],
             ["July", ""],
@@ -87,16 +84,14 @@ class currentYearAffiliates extends React.Component {
 
     const user = JSON.parse(localStorage.getItem("accessToken"));
     const token = localStorage.getItem("LoginSession");
-    this.setState({ loaderActive: true });
+    // this.setState({ loaderActive: true });
+    this.props.loaderActive(true);
     let result = await apiHelper(
       "get",
       "api/affiliate/CurrentYearAffiliates",
       "",
       token
     );
-    this.setState({
-      loaderActive: false,
-    });
     if (result) {
       if (result.status == 200) {
         this.setState({ series: [{ data: result.currentYearUsers }] });
@@ -104,17 +99,11 @@ class currentYearAffiliates extends React.Component {
         this.setState({ errors: result.message });
       }
     }
+    this.props.loaderActive(false);
   }
   render() {
     return (
       <div>
-        {this.state.loaderActive ? (
-          <div className="inlineLoaderGif">
-            <img src={loaderImage} alt="broken" />
-          </div>
-        ) : (
-          ""
-        )}{" "}
         <Chart
           options={this.state.options}
           series={this.state.series}

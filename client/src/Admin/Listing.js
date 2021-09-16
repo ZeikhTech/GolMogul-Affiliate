@@ -2,10 +2,10 @@ import React, { Component } from "react";
 import $ from "jquery";
 import apiHelper from "./Helper/ApiHelper";
 import Pagination from "react-js-pagination";
-import { Button, Modal, Alert } from "react-bootstrap";
+import { Button, Modal, Alert, Row, Col, Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 import loaderImage from "./images/loader.svg";
-
+import SearchField from "react-search-field";
 var moment = require("moment");
 
 function SampleNextArrow(props) {
@@ -34,6 +34,7 @@ class AffiliatesListing extends Component {
     super(props);
     this.state = {
       show: false,
+      showBadge: false,
       affiliatessListing: [],
       activePage: 1,
       type: "",
@@ -42,11 +43,18 @@ class AffiliatesListing extends Component {
       recordsCount: "",
       userToDelete: "",
       nameofDeletedUser: "",
+      userId: "",
+      greenBadges: 0,
+      brownBadges: 0,
+      silverBadges: 0,
+      goldBadges: 0,
+      search: "",
+      errors: "",
     };
   }
 
   async componentDidMount() {
-    this.reloadPage(); // to reload once
+    // this.reloadPage(); // to reload once
     var x = this.props.match;
     let type = x.params.type;
     $("body").removeClass("transparent-header");
@@ -56,9 +64,6 @@ class AffiliatesListing extends Component {
 
     if (user.role == "Admin") {
       this.getDocuments(1, type);
-      this.setState({
-        loaderActive: false,
-      });
     } else {
       this.props.history.push({
         pathname: "/login",
@@ -68,7 +73,6 @@ class AffiliatesListing extends Component {
       });
     }
   }
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.match.params.type !== this.props.match.params.type) {
       this.setState({ type: nextProps.match.params.type });
@@ -89,12 +93,16 @@ class AffiliatesListing extends Component {
     this.getDocuments(pageNumber, type);
   }
   async getDocuments(pageNumber, type) {
+    this.setState({
+      loaderActive: true,
+    });
     let data = {
       pageNumber: pageNumber,
       type: type ? type : this.state.type,
     };
     const token = localStorage.getItem("LoginSession");
     let result;
+    this.setState({ loaderActive: true });
     if (type === "deleted") {
       this.setState({
         loaderActive: true,
@@ -121,9 +129,6 @@ class AffiliatesListing extends Component {
       this.setState({
         loaderActive: false,
       });
-      this.setState({
-        loaderActive: false,
-      });
     }
 
     if (result.status == 200) {
@@ -141,13 +146,16 @@ class AffiliatesListing extends Component {
       //   },
       // });
     }
+    this.setState({ loaderActive: true });
     let count = await apiHelper("post", `api/Admin/count`, data, "");
+    this.setState({ loaderActive: false });
     if (count.status == 200) {
       this.setState({ recordsCount: count.recordsCount });
     }
   }
   handleClose1 = () => {
     this.setState({ show: false });
+    this.setState({ showBadge: false });
   };
   async onTrash() {
     const token = localStorage.getItem("LoginSession");
@@ -173,6 +181,99 @@ class AffiliatesListing extends Component {
   onClose1 = () => {
     this.setState({ show: false });
     this.onTrash();
+  };
+  showBadge = async (e, userId) => {
+    e.preventDefault();
+    const token = localStorage.getItem("LoginSession");
+
+    this.setState({ showBadge: true });
+    var data = { id: userId };
+    this.setState({ loaderActive: true });
+    var greenBadgeApiRes = await apiHelper(
+      "post",
+      "api/admin/greenBadgeFollowers",
+      data,
+      token
+    );
+    if (greenBadgeApiRes) {
+      if (
+        greenBadgeApiRes.status === 401 ||
+        greenBadgeApiRes.status === 403 ||
+        greenBadgeApiRes.status === 400
+      ) {
+        this.setState({ errors: greenBadgeApiRes.message });
+        return;
+      } else if (greenBadgeApiRes.status == 200) {
+        if (greenBadgeApiRes.greenBadgesCount) {
+          this.setState({ greenBadges: greenBadgeApiRes.greenBadgesCount });
+        }
+      }
+    }
+
+    ///////////////////Brown//////////////////
+    var brownBadgeApiRes = await apiHelper(
+      "post",
+      "api/admin/brownBadgeFollowers",
+      data,
+      token
+    );
+    if (brownBadgeApiRes) {
+      if (
+        brownBadgeApiRes.status === 401 ||
+        brownBadgeApiRes.status === 403 ||
+        brownBadgeApiRes.status === 400
+      ) {
+        this.setState({ errors: brownBadgeApiRes.message });
+        return;
+      } else if (brownBadgeApiRes.status == 200) {
+        if (brownBadgeApiRes.brownBadgesCount) {
+          this.setState({ brownBadges: brownBadgeApiRes.brownBadgesCount });
+        }
+      }
+    }
+    //////////////////////Silver//////////////////////
+    var silverBadgeApiRes = await apiHelper(
+      "post",
+      "api/admin/silverBadgeFollowers",
+      data,
+      token
+    );
+    if (silverBadgeApiRes) {
+      if (
+        silverBadgeApiRes.status === 401 ||
+        silverBadgeApiRes.status === 403 ||
+        silverBadgeApiRes.status === 400
+      ) {
+        this.setState({ errors: silverBadgeApiRes.message });
+        return;
+      } else if (silverBadgeApiRes.status == 200) {
+        if (silverBadgeApiRes.silverBadgesCount) {
+          this.setState({ silverBadges: silverBadgeApiRes.silverBadgesCount });
+        }
+      }
+    }
+
+    var goldBadgeApiRes = await apiHelper(
+      "post",
+      "api/admin/goldBadgeFollowers",
+      data,
+      token
+    );
+    if (goldBadgeApiRes) {
+      if (
+        goldBadgeApiRes.status === 401 ||
+        goldBadgeApiRes.status === 403 ||
+        goldBadgeApiRes.status === 400
+      ) {
+        this.setState({ errors: goldBadgeApiRes.message });
+        return;
+      } else if (goldBadgeApiRes.status == 200) {
+        if (goldBadgeApiRes.goldBadgesCount) {
+          this.setState({ goldBadges: goldBadgeApiRes.goldBadgesCount });
+        }
+      }
+    }
+    this.setState({ loaderActive: false });
   };
   async onRestore(e, userToRecover) {
     e.preventDefault();
@@ -203,6 +304,9 @@ class AffiliatesListing extends Component {
     } else {
     }
   }
+  onChange = (e, value) => {
+    this.setState({ search: value });
+  };
   render() {
     const settings = {
       infinite: true,
@@ -313,7 +417,7 @@ class AffiliatesListing extends Component {
                     <Modal.Body>
                       <Alert variant="danger">
                         <p>
-                          Are you sure you want to delete{" "}
+                          Are you sure you want to delete
                           <b>{this.state.nameofDeletedUser}</b>?
                         </p>
                         <hr />
@@ -328,6 +432,114 @@ class AffiliatesListing extends Component {
                       </Button>
                     </Modal.Footer>
                   </Modal>
+                  <Modal
+                    aria-labelledby="contained-modal-title-vcenter"
+                    show={this.state.showBadge}
+                    onHide={this.handleClose1}
+                    centered
+                  >
+                    <Modal.Header closeButton className="modal-headerr">
+                      <Modal.Title id="contained-modal-title-vcenter modal-title">
+                        Badges Info
+                      </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="show-grid">
+                      <Container>
+                        <Row>
+                          <Col xs={3}>
+                            <img
+                              style={{
+                                marginBottom: "0.5",
+                              }}
+                              height="70px"
+                              width="70px"
+                              src="assets/images/green_badge.png"
+                              className="img-fluid d-block"
+                              alt=""
+                            />
+                            <div
+                              style={{ marginLeft: "30px", color: "#55bb5f" }}
+                            >
+                              <span>
+                                <strong>{this.state.greenBadges}</strong>
+                              </span>
+                            </div>
+                          </Col>
+                          <Col xs={3}>
+                            <img
+                              style={{
+                                marginBottom: "0.5",
+                              }}
+                              height="70px"
+                              width="70px"
+                              src="assets/images/brown_badge.png"
+                              className="img-fluid d-block"
+                              alt=""
+                            />
+                            <div
+                              style={{ marginLeft: "30px", color: "#5b3719" }}
+                            >
+                              <span>
+                                <strong>{this.state.brownBadges}</strong>
+                              </span>
+                            </div>
+                          </Col>
+                          <Col xs={3}>
+                            <img
+                              style={{
+                                marginBottom: "0.5",
+                              }}
+                              height="70px"
+                              width="70px"
+                              src="assets/images/silver_badge.png"
+                              className="img-fluid d-block"
+                              alt=""
+                            />
+                            <div
+                              style={{ marginLeft: "30px", color: "#898684" }}
+                            >
+                              <span>
+                                <strong>{this.state.silverBadges}</strong>
+                              </span>
+                            </div>
+                          </Col>
+                          <Col xs={3}>
+                            <img
+                              style={{
+                                marginBottom: "0.5",
+                              }}
+                              height="70px"
+                              width="70px"
+                              src="assets/images/golden_badge.png"
+                              className="img-fluid d-block"
+                              alt=""
+                            />
+                            <div
+                              style={{ marginLeft: "30px", color: "#ffcc5b" }}
+                            >
+                              <span>
+                                <strong>{this.state.goldBadges}</strong>
+                              </span>
+                            </div>
+                          </Col>
+                        </Row>
+                      </Container>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      {this.state.errors ? (
+                        <div
+                          style={{ color: "#FE6E00" }}
+                          className="alert alert-danger"
+                        >
+                          {this.state.errors}
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                      <Button onClick={this.handleClose1}>Close</Button>
+                    </Modal.Footer>
+                  </Modal>
+
                   <div className="tab-content" id="v-pills-tabContent">
                     <div
                       className="tab-pane fade active show"
@@ -335,6 +547,7 @@ class AffiliatesListing extends Component {
                       role="tabpanel"
                       aria-labelledby="v-pills-home-tab"
                     >
+                      {" "}
                       {this.state.affiliatessListing.length > 0
                         ? this.state.affiliatessListing.map((data, key) => {
                             return (
@@ -404,6 +617,25 @@ class AffiliatesListing extends Component {
                                     <div className="col-lg-2 col-md-2 col-sm-6">
                                       <div className="edit_icon">
                                         <ul>
+                                          <li>
+                                            <a
+                                              onClick={(e) => {
+                                                this.showBadge(e, data._id);
+                                              }}
+                                              title=""
+                                            >
+                                              <img
+                                                style={{
+                                                  marginBottom: "0.5",
+                                                }}
+                                                height="32px"
+                                                width="32px"
+                                                src="assets/images/badge.png"
+                                                className="img-fluid"
+                                                alt=""
+                                              />
+                                            </a>
+                                          </li>
                                           <li>
                                             <a
                                               href={`#/admin/Affiliat/${data._id}/dashboard`}

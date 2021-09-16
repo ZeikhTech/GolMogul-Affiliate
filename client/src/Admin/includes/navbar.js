@@ -7,6 +7,8 @@ class Navbar extends Component {
     avatar: "",
   };
   async componentDidMount() {
+    const token = localStorage.getItem("LoginSession");
+
     let x = this.props.history;
     let id = x.location.id;
     // let token = x.location.token;
@@ -16,11 +18,11 @@ class Navbar extends Component {
       id = JSON.parse(localStorage.getItem("userId"));
       this.setState({ userId: id });
     }
-    var user = localStorage.getItem("accessToken");
-    var token = localStorage.getItem("LoginSession");
+    var user = JSON.parse(localStorage.getItem("accessToken"));
 
-    // if (!token) {
-    //   window.location.reload();
+    // if (token == null) {
+    //   console.log("Token nai ha ");
+    //   // window.location.reload();
     // }
     if (user) {
       this.setState({ loaderActive: true });

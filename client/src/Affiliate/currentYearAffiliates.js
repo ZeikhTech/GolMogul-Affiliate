@@ -3,17 +3,12 @@ import ReactDOM from "react-dom";
 import Chart, { colors } from "react-apexcharts";
 import apiHelper from "./Helper/ApiHelper";
 import $ from "jquery";
-import loaderImage from "../Admin/images/loader.svg";
 
 class currentYearAffiliates extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentMonthUsers: "",
-      LastMonthUser: "",
-      lastYearUsers: "",
-      loaderActive: false,
       series: [
         {
           data: [],
@@ -62,7 +57,7 @@ class currentYearAffiliates extends React.Component {
             ["Jan", ""],
             ["Feb", ""],
             ["March", ""],
-            "April",
+            ["Aprl", ""],
             ["May", ""],
             ["June", ""],
             ["July", ""],
@@ -87,7 +82,7 @@ class currentYearAffiliates extends React.Component {
     $("html, body").animate({ scrollTop: 0 }, "slow");
     const token = localStorage.getItem("LoginSession");
 
-    this.setState({ loaderActive: true });
+    this.props.loaderActive(true);
     var data = {
       id: this.props.props,
     };
@@ -97,27 +92,19 @@ class currentYearAffiliates extends React.Component {
       data,
       token
     );
-    this.setState({ loaderActive: false });
 
     if (result) {
       if (result.status == 200) {
         this.setState({ series: [{ data: result.currentYearFoll }] });
-        console.log("result.currentYearFoll", result.currentYearFoll);
       } else {
         this.setState({ errors: result.message });
       }
     }
+    this.props.loaderActive(false);
   }
   render() {
     return (
       <div>
-        {this.state.loaderActive ? (
-          <div className="inlineLoaderGif">
-            <img src={loaderImage} alt="broken" />
-          </div>
-        ) : (
-          ""
-        )}{" "}
         <Chart
           options={this.state.options}
           series={this.state.series}

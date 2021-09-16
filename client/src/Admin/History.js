@@ -10,9 +10,11 @@ class ApexChart extends React.Component {
     super(props);
 
     this.state = {
-      currentMonthUsers: "",
-      LastMonthUser: "",
-      lastYearUsers: "",
+      thisWeekAffilCount: 0,
+      thisMonthAffilCount: 0,
+      totalAffilCount: 0,
+      // loaderActive: false,
+
       series: [
         {
           data: [],
@@ -61,46 +63,63 @@ class ApexChart extends React.Component {
     $("html, body").animate({ scrollTop: 0 }, "slow");
 
     const token = localStorage.getItem("LoginSession");
-    this.setState({
-      loaderActive: true,
-    });
-    let result = await apiHelper("get", "api/affiliate/PiChartData", "", token);
-    this.setState({
-      loaderActive: false,
-    });
+    this.props.loaderActive(true);
+    // this.setState({
+    //   loaderActive: true,
+    // });
+    let result = await apiHelper(
+      "get",
+      "api/affiliate/affiliatesPiChartData",
+      "",
+      token
+    );
+    // this.setState({
+    //   loaderActive: false,
+    // });
     if (result) {
       if (result.status == 200) {
-        var currentMonthUsers = result.currentMonthUsers;
-        var LastMonthUsers = result.LastMonthUsers;
+        this.setState({ loaderActive: true });
 
-        var lastYearUsers = result.lastYearUsers;
+        var thisWeekAffilCount = result.thisWeekAffilCount;
+        var thisMonthAffilCount = result.thisMonthAffilCount;
+
+        var totalAffilCount = result.totalAffilCount;
+        console.log(
+          result.thisWeekAffilCount,
+          result.thisMonthAffilCount,
+          result.totalAffilCount
+        );
         this.setState({
-          currentMonthUsers: currentMonthUsers,
-          LastMonthUser: LastMonthUsers,
-          lastYearUsers: lastYearUsers,
+          thisWeekAffilCount: thisWeekAffilCount,
+          thisMonthAffilCount: thisMonthAffilCount,
+          totalAffilCount: totalAffilCount,
         });
 
         var series1 = [
-          { data: [currentMonthUsers, LastMonthUsers, lastYearUsers] },
+          {
+            data: [thisWeekAffilCount, thisMonthAffilCount, totalAffilCount],
+          },
         ];
         this.setState({
           series: series1,
         });
+        // this.setState({ loaderActive: false });
       } else {
         this.setState({ errors: result.message });
       }
     }
+    this.props.loaderActive(false);
   }
   render() {
     return (
       <div>
-        {this.state.loaderActive ? (
+        {/* {this.state.loaderActive ? (
           <div className="inlineLoaderGif">
             <img src={loaderImage} alt="broken" />
           </div>
         ) : (
           ""
-        )}{" "}
+        )}{" "} */}
         <Chart
           options={this.state.options}
           series={this.state.series}
@@ -110,16 +129,16 @@ class ApexChart extends React.Component {
         <div className="chart_value">
           <ul>
             <li>
-              <h5 className="text_blue">{this.state.currentMonthUsers}</h5>
-              <p>Current Month</p>
+              <h5 className="text_blue">{this.state.thisWeekAffilCount}</h5>
+              <p>This Week</p>
             </li>
             <li>
-              <h5 className="text_info">{this.state.LastMonthUser}</h5>
-              <p>Last Month</p>
+              <h5 className="text_info">{this.state.thisMonthAffilCount}</h5>
+              <p>This Month</p>
             </li>
             <li>
-              <h5 className="text_orange">{this.state.lastYearUsers}</h5>
-              <p>Last Year</p>
+              <h5 className="text_orange">{this.state.totalAffilCount}</h5>
+              <p>Total</p>
             </li>
           </ul>
         </div>

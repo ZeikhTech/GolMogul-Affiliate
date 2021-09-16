@@ -15,7 +15,9 @@ import $ from "jquery";
 //                     their goals?
 //                   </h3>
 //                   <p>
-//                     Keep up with your friend’s life goals and enjoy helping
+//                     Discover your friends’ goals, dreams, and aspirations
+// Stay connected, show support, make them smile
+// for it!
 //                     them!
 //                   </p>
 //                   <img
